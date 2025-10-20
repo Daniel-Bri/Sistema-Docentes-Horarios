@@ -1,10 +1,15 @@
 <?php
 
-use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/inicio', [DashboardController::class, 'index'])->name('dashboard.index');
+// Incluimos rutas de autenticación
+require __DIR__.'/auth.php';
+
+// Rutas protegidas por roles
+require __DIR__.'/admin.php';
+require __DIR__.'/docente.php';
+require __DIR__.'/coordinador.php';
