@@ -14,7 +14,11 @@ class RoleMiddleware
             return redirect('/login');
         }
 
-        if (Auth::user()->rol !== $role) {
+        // Cambia esta línea:
+        // if (Auth::user()->rol !== $role) {
+        
+        // Por esto (con Spatie Permission):
+        if (!Auth::user()->hasRole($role)) {
             abort(403, 'Acceso denegado.');
         }
 
