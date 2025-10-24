@@ -8,16 +8,17 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::create('grupos', function (Blueprint $table) {
+        Schema::create('horario', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre');
-            $table->string('gestion');
+            $table->enum('dia', ['LUN', 'MAR', 'MIE', 'JUE', 'VIE', 'SAB']);
+            $table->time('hora_inicio');
+            $table->time('hora_fin');
             $table->timestamps();
         });
     }
 
     public function down()
     {
-        Schema::dropIfExists('grupos');
+        Schema::dropIfExists('horario');
     }
 };

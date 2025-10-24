@@ -2,58 +2,47 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\User;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\DB;
 
 class UserSeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
-        // Docente 1
+        // Usar firstOrCreate para evitar duplicados
+        $admin = User::firstOrCreate(
+            ['email' => 'admin@ficct.edu.bo'],
+            [
+                'name' => 'Admin Sistema',
+                'password' => Hash::make('12345678'),
+                'email_verified_at' => now(),
+            ]
+        );
+
         $docente1 = User::firstOrCreate(
-            ['email' => 'juan.perez@sistema.edu'],
+            ['email' => 'jperez@ficct.edu.bo'],
             [
-                'name' => 'Juan Carlos Pérez',
-                'password' => Hash::make('Docente123*'),
+                'name' => 'Juan Perez',
+                'password' => Hash::make('12345678'),
                 'email_verified_at' => now(),
             ]
         );
 
-        // Asignar rol docente si no lo tiene
-        if (!$docente1->hasRole('docente')) {
-            $docenteRole = DB::table('roles')->where('name', 'docente')->first();
-            if ($docenteRole) {
-                DB::table('model_has_roles')->insert([
-                    'role_id' => $docenteRole->id,
-                    'model_type' => 'App\Models\User',
-                    'model_id' => $docente1->id,
-                ]);
-            }
-        }
-
-        // Docente 2
         $docente2 = User::firstOrCreate(
-            ['email' => 'ana.garcia@sistema.edu'],
+            ['email' => 'mlopez@ficct.edu.bo'],
             [
-                'name' => 'Ana María García', 
-                'password' => Hash::make('Docente123*'),
+                'name' => 'Maria Lopez', 
+                'password' => Hash::make('12345678'),
                 'email_verified_at' => now(),
             ]
         );
 
-        // Asignar rol docente si no lo tiene
-        if (!$docente2->hasRole('docente')) {
-            $docenteRole = DB::table('roles')->where('name', 'docente')->first();
-            if ($docenteRole) {
-                DB::table('model_has_roles')->insert([
-                    'role_id' => $docenteRole->id,
-                    'model_type' => 'App\Models\User',
-                    'model_id' => $docente2->id,
-                ]);
-            }
+        // Asignar roles si usas Spatie Permission
+        if (class_exists(\Spatie\Permission\Models\Role::class)) {
+            $admin->assignRole('admin');
+            $docente1->assignRole('docente');
+            $docente2->assignRole('docente');
         }
     }
 }

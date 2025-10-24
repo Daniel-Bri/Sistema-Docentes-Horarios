@@ -212,7 +212,7 @@ class RolePermissionSeeder extends Seeder
             ['email' => 'admin@sistema.edu'],
             [
                 'name' => 'Administrador Sistema',
-                'password' => Hash::make('Admin123*'),
+                'password' => Hash::make('12345678'),
                 'email_verified_at' => now(),
                 'password_set' => true,
             ]

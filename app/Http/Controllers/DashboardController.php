@@ -2,24 +2,32 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use App\Models\Materia;
+use App\Models\Aula;
+use App\Models\Asistencia;
+use App\Models\Docente;
+use App\Models\Grupo;
+use App\Models\GrupoMateria;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        $user = auth()->user();
-        
-        // Redirección basada en roles
-        if ($user->hasRole('admin')) {
-            return view('admin.dashboard'); // o redirect('/admin')
-        } elseif ($user->hasRole('coordinador')) {
-            return view('coordinador.dashboard');
-        } elseif ($user->hasRole('docente')) {
-            return view('docente.dashboard');
-        }
-        
-        // Vista genérica si no tiene un rol específico
-        return view('dashboard');
+        $stats = [
+            'docentes_count' => Docente::count(),
+            'materias_count' => Materia::count(),
+            'aulas_count' => Aula::count(),
+            'grupos_count' => Grupo::count(),
+        ];
+
+        // Obtener últimas asistencias
+        $asistencias = Asistencia::with(['docente', 'grupoMateria.materia'])
+            ->orderBy('fecha', 'desc')
+            ->limit(10)
+            ->get();
+
+        return view('dashboard.index', compact('stats', 'asistencias'));
     }
 }
