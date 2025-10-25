@@ -32,26 +32,6 @@
                 @method('PUT')
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Código -->
-                    <div>
-                        <label for="codigo" class="block text-sm font-bold text-deep-teal-700 mb-2">
-                            <i class="fas fa-hashtag mr-2 text-[#3CA6A6]"></i>
-                            Código del Aula *
-                        </label>
-                        <input type="text" 
-                               id="codigo" 
-                               name="codigo" 
-                               value="{{ old('codigo', $aula->codigo) }}"
-                               required
-                               class="w-full rounded-xl border-deep-teal-200 shadow-sm focus:border-[#3CA6A6] focus:ring focus:ring-[#3CA6A6] focus:ring-opacity-20 transition-all duration-200 @error('codigo') border-rose-500 @enderror"
-                               placeholder="Ej: AULA-001">
-                        @error('codigo')
-                            <p class="mt-1 text-sm text-rose-600 flex items-center">
-                                <i class="fas fa-exclamation-circle mr-1"></i>
-                                {{ $message }}
-                            </p>
-                        @enderror
-                    </div>
 
                     <!-- Nombre -->
                     <div>
@@ -95,7 +75,6 @@
                             </p>
                         @enderror
                     </div>
-
                     <!-- Tipo -->
                     <div>
                         <label for="tipo" class="block text-sm font-bold text-deep-teal-700 mb-2">
@@ -107,10 +86,10 @@
                                 required
                                 class="w-full rounded-xl border-deep-teal-200 shadow-sm focus:border-[#3CA6A6] focus:ring focus:ring-[#3CA6A6] focus:ring-opacity-20 transition-all duration-200 @error('tipo') border-rose-500 @enderror">
                             <option value="">Seleccione un tipo</option>
-                            <option value="Teórica" {{ old('tipo', $aula->tipo) == 'Teórica' ? 'selected' : '' }}>Teórica</option>
-                            <option value="Práctica" {{ old('tipo', $aula->tipo) == 'Práctica' ? 'selected' : '' }}>Práctica</option>
-                            <option value="Laboratorio" {{ old('tipo', $aula->tipo) == 'Laboratorio' ? 'selected' : '' }}>Laboratorio</option>
-                            <option value="Multiusos" {{ old('tipo', $aula->tipo) == 'Multiusos' ? 'selected' : '' }}>Multiusos</option>
+                            <option value="aula" {{ old('tipo') == 'Aula' ? 'selected' : '' }}>Aula</option>
+                            <option value="biblioteca" {{ old('tipo') == 'Biblioteca' ? 'selected' : '' }}>Biblioteca</option>
+                            <option value="laboratorio" {{ old('tipo') == 'Laboratorio' ? 'selected' : '' }}>Laboratorio</option>
+                            <option value="auditorio" {{ old('tipo') == 'Auditorio' ? 'selected' : '' }}>Auditorio</option>
                         </select>
                         @error('tipo')
                             <p class="mt-1 text-sm text-rose-600 flex items-center">
@@ -121,45 +100,7 @@
                     </div>
                 </div>
 
-                <!-- Ubicación -->
-                <div>
-                    <label for="ubicacion" class="block text-sm font-bold text-deep-teal-700 mb-2">
-                        <i class="fas fa-map-marker-alt mr-2 text-[#3CA6A6]"></i>
-                        Ubicación *
-                    </label>
-                    <input type="text" 
-                           id="ubicacion" 
-                           name="ubicacion" 
-                           value="{{ old('ubicacion', $aula->ubicacion) }}"
-                           required
-                           class="w-full rounded-xl border-deep-teal-200 shadow-sm focus:border-[#3CA6A6] focus:ring focus:ring-[#3CA6A6] focus:ring-opacity-20 transition-all duration-200 @error('ubicacion') border-rose-500 @enderror"
-                           placeholder="Ej: Edificio Principal, Piso 2, Ala Norte">
-                    @error('ubicacion')
-                        <p class="mt-1 text-sm text-rose-600 flex items-center">
-                            <i class="fas fa-exclamation-circle mr-1"></i>
-                            {{ $message }}
-                        </p>
-                    @enderror
-                </div>
-
-                <!-- Equipamiento -->
-                <div>
-                    <label for="equipamiento" class="block text-sm font-bold text-deep-teal-700 mb-2">
-                        <i class="fas fa-laptop mr-2 text-[#3CA6A6]"></i>
-                        Equipamiento
-                    </label>
-                    <textarea id="equipamiento" 
-                              name="equipamiento" 
-                              rows="3"
-                              class="w-full rounded-xl border-deep-teal-200 shadow-sm focus:border-[#3CA6A6] focus:ring focus:ring-[#3CA6A6] focus:ring-opacity-20 transition-all duration-200 @error('equipamiento') border-rose-500 @enderror"
-                              placeholder="Describa el equipamiento disponible en el aula (proyectores, computadoras, etc.)">{{ old('equipamiento', $aula->equipamiento) }}</textarea>
-                    @error('equipamiento')
-                        <p class="mt-1 text-sm text-rose-600 flex items-center">
-                            <i class="fas fa-exclamation-circle mr-1"></i>
-                            {{ $message }}
-                        </p>
-                    @enderror
-                </div>
+                
 
                 <!-- Estado -->
                 <div>

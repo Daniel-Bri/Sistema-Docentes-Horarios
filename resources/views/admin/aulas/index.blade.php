@@ -152,7 +152,6 @@
                             <th class="px-6 py-4 text-left text-xs font-bold text-[#F2E3D5] uppercase tracking-wider">Nombre</th>
                             <th class="px-6 py-4 text-left text-xs font-bold text-[#F2E3D5] uppercase tracking-wider">Tipo</th>
                             <th class="px-6 py-4 text-left text-xs font-bold text-[#F2E3D5] uppercase tracking-wider">Capacidad</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-[#F2E3D5] uppercase tracking-wider">Ubicación</th>
                             <th class="px-6 py-4 text-left text-xs font-bold text-[#F2E3D5] uppercase tracking-wider">Estado</th>
                             <th class="px-6 py-4 text-left text-xs font-bold text-[#F2E3D5] uppercase tracking-wider">Acciones</th>
                         </tr>
@@ -178,9 +177,6 @@
                             </td>
                             <td class="px-6 py-5 whitespace-nowrap text-sm font-bold text-deep-teal-800">
                                 {{ $aula->capacidad }}
-                            </td>
-                            <td class="px-6 py-5 whitespace-nowrap text-sm text-deep-teal-700">
-                                {{ $aula->ubicacion }}
                             </td>
                             <td class="px-6 py-5 whitespace-nowrap">
                                 <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border shadow-sm
