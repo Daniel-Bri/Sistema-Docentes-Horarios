@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Gestión de Roles')
+@section('title', 'Gestión de Roles y Permisos')
 
 @section('content')
 <div class="bg-white shadow-xl rounded-2xl border border-gray-200 overflow-hidden">
@@ -9,7 +9,7 @@
         <div class="flex justify-between items-center">
             <h2 class="text-2xl font-bold text-white">
                 <i class="fas fa-user-shield mr-3"></i>
-                Gestión de Roles
+                Gestión de Roles y Permisos
             </h2>
             <a href="{{ route('admin.roles.create') }}" 
                class="bg-white text-blue-600 px-4 py-2 rounded-lg font-semibold shadow hover:bg-blue-50 transition duration-200">

@@ -142,10 +142,11 @@
                             <i class="fas fa-users mr-2 w-4 h-4"></i>
                             Gestión de Usuarios
                         </a>
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate">
-                            <i class="fas fa-user-shield mr-2 w-4 h-4"></i>
-                            Roles y Permisos
-                        </a>
+                            <a href="{{ route('admin.roles.index') }}" 
+                            class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
+                                <i class="fas fa-user-shield mr-2 w-4 h-4"></i>
+                                Roles y Permisos
+                            </a>
                         <a href="{{ route('admin.bitacora.index') }}" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
                             <i class="fas fa-clipboard-list mr-2 w-4 h-4"></i>
                             Bitácora del Sistema

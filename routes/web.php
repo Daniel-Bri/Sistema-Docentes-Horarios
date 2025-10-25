@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\RolController;
 
 // Página de inicio
 Route::get('/', function () {
@@ -35,3 +36,5 @@ Route::get('/debug-auth', function() {
     }
     return "<h1>No autenticado</h1>";
 });
+Route::get('/roles-permisos', [RolController::class, 'index'])->name('roles.permisos');
+
