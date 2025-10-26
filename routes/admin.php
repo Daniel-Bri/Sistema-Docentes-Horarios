@@ -32,7 +32,6 @@ Route::prefix('admin')
 
 
 
-
         // Route::resource('docentes', DocenteController::class);
         // Route::resource('materias', MateriaController::class);
         // Gestión de Aulas

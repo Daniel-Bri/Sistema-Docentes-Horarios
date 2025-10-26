@@ -3,169 +3,182 @@
 @section('title', 'Carga Horaria - ' . $docente->user->name)
 
 @section('content')
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Carga Horaria del Docente: {{ $docente->user->name }}</h3>
-                    <div class="card-tools">
-                        <a href="{{ route('admin.docentes.show', $docente->codigo) }}" class="btn btn-secondary">
-                            <i class="fas fa-arrow-left"></i> Volver al Perfil
-                        </a>
-                        <a href="{{ route('admin.docentes.grupos-asignados', $docente->codigo) }}" class="btn btn-info">
-                            <i class="fas fa-list"></i> Ver Grupos Asignados
-                        </a>
+<div class="max-w-7xl mx-auto">
+    <div class="bg-white shadow-xl rounded-2xl border border-deep-teal-200 overflow-hidden">
+        <!-- Header -->
+        <div class="gradient-bg px-4 py-5 sm:px-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h3 class="text-2xl font-bold text-[#F2E3D5]">
+                        <i class="fas fa-clock mr-3"></i>
+                        Carga Horaria - {{ $docente->user->name }}
+                    </h3>
+                    <p class="mt-2 text-deep-teal-200 text-sm">
+                        Resumen de horas asignadas por materia y grupos
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <a href="{{ route('docentes.show', $docente->codigo) }}" 
+                       class="inline-flex items-center px-4 py-2 bg-white/20 hover:bg-white/30 text-white border border-white/30 rounded-xl font-semibold text-xs uppercase tracking-widest transition-all duration-200 backdrop-blur-sm">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Volver al Docente
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-4 sm:p-6 bg-gradient-to-br from-gray-25 to-deep-teal-25">
+            @if(session('success'))
+                <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl shadow-sm">
+                    <div class="flex items-center">
+                        <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                        <p class="text-green-800 font-medium">{{ session('success') }}</p>
                     </div>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3">
-                            <div class="info-box">
-                                <div class="info-box-content">
-                                    <span class="info-box-text">Materias Asignadas</span>
-                                    <span class="info-box-number">{{ $docente->materias->count() }}</span>
-                                </div>
-                            </div>
+            @endif
+
+            @if(session('error'))
+                <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl shadow-sm">
+                    <div class="flex items-center">
+                        <i class="fas fa-exclamation-circle text-red-500 mr-3"></i>
+                        <p class="text-red-800 font-medium">{{ session('error') }}</p>
+                    </div>
+                </div>
+            @endif
+
+            <!-- Resumen de Carga Horaria -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-blue-600 text-sm font-medium">Total Horas/Semana</p>
+                            <p class="text-3xl font-bold text-blue-800">{{ $totalHorasSemana }}h</p>
                         </div>
-                        <div class="col-md-3">
-                            <div class="info-box">
-                                <div class="info-box-content">
-                                    <span class="info-box-text">Carreras</span>
-                                    <span class="info-box-number">{{ $docente->carreras->count() }}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="info-box">
-                                <div class="info-box-content">
-                                    <span class="info-box-text">Aulas Disponibles</span>
-                                    <span class="info-box-number">{{ $aulas->count() }}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="info-box">
-                                <div class="info-box-content">
-                                    <span class="info-box-text">Gestión Actual</span>
-                                    <span class="info-box-number">{{ $gestiones->count() }}</span>
-                                </div>
-                            </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-clock text-blue-600 text-xl"></i>
                         </div>
                     </div>
+                    <div class="mt-4">
+                        <div class="w-full bg-blue-200 rounded-full h-2">
+                            <div class="bg-blue-600 h-2 rounded-full" 
+                                 style="width: {{ min(($totalHorasSemana / 40) * 100, 100) }}%"></div>
+                        </div>
+                        <p class="text-xs text-blue-600 mt-2">
+                            {{ $totalHorasSemana }}/40 horas utilizadas
+                        </p>
+                    </div>
+                </div>
 
-                    <!-- Formulario para asignar grupo -->
-                    <div class="row mt-4">
-                        <div class="col-md-12">
-                            <div class="card card-primary">
-                                <div class="card-header">
-                                    <h4 class="card-title">Asignar Grupo y Horario</h4>
+                <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-100 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-green-600 text-sm font-medium">Materias Asignadas</p>
+                            <p class="text-3xl font-bold text-green-800">{{ count($cargaPorMateria) }}</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-book text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 border border-purple-100 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-purple-600 text-sm font-medium">Grupos Asignados</p>
+                            <p class="text-3xl font-bold text-purple-800">{{ $gruposAsignados->count() }}</p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-users text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resumen por Materia - Ahora ocupa todo el ancho -->
+            <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-100 shadow-sm">
+                <h4 class="text-lg font-bold text-green-800 mb-6 flex items-center">
+                    <i class="fas fa-chart-bar mr-3"></i>
+                    Resumen de Carga Horaria por Materia
+                </h4>
+                
+                @if(count($cargaPorMateria) > 0)
+                    <div class="space-y-6">
+                        @foreach($cargaPorMateria as $carga)
+                        <div class="bg-white rounded-xl p-6 border border-green-200 shadow-sm">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h5 class="font-bold text-green-900 text-lg">{{ $carga['materia']->nombre ?? 'Materia no disponible' }}</h5>
+                                    <p class="text-sm text-green-600">{{ $carga['materia']->sigla ?? 'N/A' }} - {{ $carga['gestion']->semestre ?? 'Gestión no disponible' }}</p>
                                 </div>
-                                <div class="card-body">
-                                    <form action="{{ route('admin.docentes.asignar-grupo', $docente->codigo) }}" method="POST" id="asignarGrupoForm">
-                                        @csrf
-                                        <div class="row">
-                                            <div class="col-md-3">
-                                                <div class="form-group">
-                                                    <label for="materia_sigla">Materia *</label>
-                                                    <select class="form-control" id="materia_sigla" name="materia_sigla" required>
-                                                        <option value="">Seleccione una materia</option>
-                                                        @foreach($materiasDocente as $materia)
-                                                            <option value="{{ $materia->sigla }}">
-                                                                {{ $materia->sigla }} - {{ $materia->nombre }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
+                                <span class="px-4 py-2 bg-green-100 text-green-800 text-lg font-bold rounded-full">
+                                    {{ $carga['horas_semana'] }}h/semana
+                                </span>
+                            </div>
+                            
+                            <div class="text-sm text-green-800">
+                                <p class="font-semibold mb-3">Grupos asignados: {{ count($carga['grupos']) }}</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    @foreach($carga['grupos'] as $grupo)
+                                        <div class="bg-green-50 rounded-lg p-4 border border-green-200">
+                                            <div class="mb-3">
+                                                <p class="font-medium text-green-900">Grupo: {{ $grupo->grupo->nombre ?? 'No asignado' }}</p>
+                                                <p class="text-green-700">Aula: {{ $grupo->aula->nombre ?? 'No asignada' }}</p>
                                             </div>
-                                            <div class="col-md-3">
-                                                <div class="form-group">
-                                                    <label for="id_gestion">Gestión Académica *</label>
-                                                    <select class="form-control" id="id_gestion" name="id_gestion" required>
-                                                        <option value="">Seleccione una gestión</option>
-                                                        @foreach($gestiones as $gestion)
-                                                            <option value="{{ $gestion->id }}">
-                                                                {{ $gestion->nombre }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <div class="form-group">
-                                                    <label for="id_grupo">Grupo *</label>
-                                                    <select class="form-control" id="id_grupo" name="id_grupo" required>
-                                                        <option value="">Seleccione un grupo</option>
-                                                        @foreach($grupos as $grupo)
-                                                            <option value="{{ $grupo->id }}">
-                                                                {{ $grupo->nombre }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <div class="form-group">
-                                                    <label for="aula_id">Aula *</label>
-                                                    <select class="form-control" id="aula_id" name="aula_id" required>
-                                                        <option value="">Seleccione un aula</option>
-                                                        @foreach($aulas as $aula)
-                                                            <option value="{{ $aula->id }}">
-                                                                {{ $aula->nombre }} (Cap: {{ $aula->capacidad }})
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Horarios dinámicos -->
-                                        <div class="row mt-3">
-                                            <div class="col-md-12">
-                                                <label>Horarios *</label>
-                                                <div id="horarios-container">
-                                                    <div class="horario-item row mb-2">
-                                                        <div class="col-md-3">
-                                                            <select class="form-control" name="horarios[0][dia]" required>
-                                                                <option value="">Día</option>
-                                                                <option value="Lunes">Lunes</option>
-                                                                <option value="Martes">Martes</option>
-                                                                <option value="Miércoles">Miércoles</option>
-                                                                <option value="Jueves">Jueves</option>
-                                                                <option value="Viernes">Viernes</option>
-                                                                <option value="Sábado">Sábado</option>
-                                                            </select>
-                                                        </div>
-                                                        <div class="col-md-3">
-                                                            <input type="time" class="form-control" name="horarios[0][hora_inicio]" required>
-                                                        </div>
-                                                        <div class="col-md-3">
-                                                            <input type="time" class="form-control" name="horarios[0][hora_fin]" required>
-                                                        </div>
-                                                        <div class="col-md-3">
-                                                            <button type="button" class="btn btn-danger btn-remove-horario" disabled>
-                                                                <i class="fas fa-trash"></i>
-                                                            </button>
-                                                        </div>
+                                            <div class="space-y-2">
+                                                <p class="text-xs font-semibold text-green-800">Horarios:</p>
+                                                @foreach($grupo->horarios as $horarioAsignado)
+                                                    @if($horarioAsignado->horario)
+                                                    <div class="flex items-center justify-between bg-white px-3 py-2 rounded border border-green-200">
+                                                        <span class="text-green-700 font-medium">
+                                                            {{ $horarioAsignado->horario->dia ?? 'Día no asignado' }}
+                                                        </span>
+                                                        <span class="text-green-600 text-sm">
+                                                            {{ $horarioAsignado->horario->hora_inicio ? \Carbon\Carbon::parse($horarioAsignado->horario->hora_inicio)->format('H:i') : '--:--' }} - 
+                                                            {{ $horarioAsignado->horario->hora_fin ? \Carbon\Carbon::parse($horarioAsignado->horario->hora_fin)->format('H:i') : '--:--' }}
+                                                        </span>
                                                     </div>
-                                                </div>
-                                                <button type="button" class="btn btn-sm btn-success mt-2" id="add-horario">
-                                                    <i class="fas fa-plus"></i> Agregar Horario
-                                                </button>
+                                                    @endif
+                                                @endforeach
                                             </div>
                                         </div>
-
-                                        <div class="row mt-3">
-                                            <div class="col-md-12">
-                                                <button type="submit" class="btn btn-primary">
-                                                    <i class="fas fa-save"></i> Asignar Grupo y Horario
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </form>
+                                    @endforeach
                                 </div>
                             </div>
                         </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="text-center py-12">
+                        <div class="w-20 h-20 mx-auto mb-4 bg-orange-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-clock text-orange-500 text-2xl"></i>
+                        </div>
+                        <p class="text-orange-700 font-medium text-lg">No hay carga horaria asignada</p>
+                        <p class="text-orange-600 text-sm mt-2">El docente no tiene grupos ni horarios asignados</p>
+                    </div>
+                @endif
+            </div>
+
+            <!-- Información adicional del docente -->
+            <div class="mt-8 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100 shadow-sm">
+                <h4 class="text-lg font-bold text-blue-800 mb-4 flex items-center">
+                    <i class="fas fa-info-circle mr-3"></i>
+                    Información del Docente
+                </h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-sm text-blue-700"><strong>Código:</strong> {{ $docente->codigo }}</p>
+                        <p class="text-sm text-blue-700"><strong>Email:</strong> {{ $docente->user->email }}</p>
+                        <p class="text-sm text-blue-700"><strong>Teléfono:</strong> {{ $docente->telefono }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-blue-700"><strong>Carreras:</strong> 
+                            @if($docente->carreras->count() > 0)
+                                {{ $docente->carreras->pluck('nombre')->implode(', ') }}
+                            @else
+                                No asignadas
+                            @endif
+                        </p>
+                        <p class="text-sm text-blue-700"><strong>Contrato:</strong> {{ $docente->fecha_contrato }} a {{ $docente->fecha_final }}</p>
                     </div>
                 </div>
             </div>
@@ -173,57 +186,3 @@
     </div>
 </div>
 @endsection
-
-@push('scripts')
-<script>
-    let horarioCount = 1;
-
-    // Agregar horario
-    $('#add-horario').click(function() {
-        const newHorario = `
-            <div class="horario-item row mb-2">
-                <div class="col-md-3">
-                    <select class="form-control" name="horarios[${horarioCount}][dia]" required>
-                        <option value="">Día</option>
-                        <option value="Lunes">Lunes</option>
-                        <option value="Martes">Martes</option>
-                        <option value="Miércoles">Miércoles</option>
-                        <option value="Jueves">Jueves</option>
-                        <option value="Viernes">Viernes</option>
-                        <option value="Sábado">Sábado</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <input type="time" class="form-control" name="horarios[${horarioCount}][hora_inicio]" required>
-                </div>
-                <div class="col-md-3">
-                    <input type="time" class="form-control" name="horarios[${horarioCount}][hora_fin]" required>
-                </div>
-                <div class="col-md-3">
-                    <button type="button" class="btn btn-danger btn-remove-horario">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            </div>
-        `;
-        $('#horarios-container').append(newHorario);
-        horarioCount++;
-        
-        // Habilitar botones de eliminar si hay más de un horario
-        $('.btn-remove-horario').prop('disabled', false);
-    });
-
-    // Eliminar horario
-    $(document).on('click', '.btn-remove-horario', function() {
-        if ($('.horario-item').length > 1) {
-            $(this).closest('.horario-item').remove();
-            horarioCount--;
-        }
-        
-        // Deshabilitar botones de eliminar si solo queda un horario
-        if ($('.horario-item').length === 1) {
-            $('.btn-remove-horario').prop('disabled', true);
-        }
-    });
-</script>
-@endpush

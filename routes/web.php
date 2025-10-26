@@ -45,3 +45,11 @@ Route::get('/docentes/{codigo}', [DocenteController::class, 'show'])->name('doce
 Route::get('/docentes/{codigo}/editar', [DocenteController::class, 'edit'])->name('docentes.edit');
 Route::put('/docentes/{codigo}', [DocenteController::class, 'update'])->name('docentes.update');
 Route::delete('/docentes/{codigo}', [DocenteController::class, 'destroy'])->name('docentes.destroy');
+// Rutas para carga horaria
+
+// Rutas para carga horaria
+Route::prefix('admin/docentes')->group(function () {
+    Route::get('/{codigo}/carga-horaria', [DocenteController::class, 'cargaHoraria'])->name('admin.docentes.carga-horaria');
+    Route::post('/{codigo}/asignar-grupo', [DocenteController::class, 'asignarGrupo'])->name('admin.docentes.asignar-grupo');
+    Route::delete('/{codigo}/eliminar-grupo/{grupoMateriaId}', [DocenteController::class, 'eliminarGrupo'])->name('admin.docentes.eliminar-grupo');
+});

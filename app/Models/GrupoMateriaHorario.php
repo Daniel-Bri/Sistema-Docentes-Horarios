@@ -8,12 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 class GrupoMateriaHorario extends Model
 {
     use HasFactory;
+
     protected $table = 'grupo_materia_horario';
+
     protected $fillable = [
         'id_grupo_materia',
-        'id_horario',
-        'id_aula',
-        'estado_aula'
+        'id_horario', 
+        'codigo_docente',
+        'id_aula'
     ];
 
     // Relación con GrupoMateria
@@ -28,15 +30,15 @@ class GrupoMateriaHorario extends Model
         return $this->belongsTo(Horario::class, 'id_horario');
     }
 
+    // Relación con Docente
+    public function docente()
+    {
+       // return $this->belongsTo(Docente::class, 'codigo_docente', 'codigo');
+    }
+
     // Relación con Aula
     public function aula()
     {
         return $this->belongsTo(Aula::class, 'id_aula');
-    }
-
-    // Relación con Asistencias
-    public function asistencias()
-    {
-        return $this->hasMany(Asistencia::class, 'id_grupo_materia', 'id_grupo_materia');
     }
 }

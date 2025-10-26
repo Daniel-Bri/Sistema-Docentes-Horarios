@@ -7,15 +7,27 @@ use App\Models\User;
 use App\Models\Materia;
 use App\Models\Carrera;
 use App\Models\Asistencia;
+use App\Models\Aula;
+use App\Models\GestionAcademica;
+use App\Models\Grupo;
+use App\Models\GrupoMateria;
+use App\Models\GrupoMateriaHorario;
+use App\Models\Horario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Carbon\Carbon;
 
 class DocenteController extends Controller
 {
     public function index()
     {
+        // Verificar autenticación primero
+        if (!auth()->check()) {
+            return redirect()->route('login')->with('error', 'Debe iniciar sesión para acceder a esta página.');
+        }
+
         $user = auth()->user();
         
         if ($user->hasRole('admin')) {
@@ -33,6 +45,11 @@ class DocenteController extends Controller
 
     public function create()
     {
+        // Verificar autenticación
+        if (!auth()->check()) {
+            return redirect()->route('login');
+        }
+
         if (!auth()->user()->hasRole('admin')) {
             abort(403, 'Solo los administradores pueden crear docentes.');
         }
@@ -49,6 +66,11 @@ class DocenteController extends Controller
 
     public function store(Request $request)
     {
+        // Verificar autenticación
+        if (!auth()->check()) {
+            return redirect()->route('login');
+        }
+
         $request->validate([
             'codigo' => 'required|string|max:20|unique:docente',
             'nombre' => 'required|string|max:255',
@@ -56,9 +78,10 @@ class DocenteController extends Controller
             'telefono' => 'required|string|max:15',
             'sueldo' => 'required|numeric|min:0',
             'fecha_contrato' => 'required|date',
+            'fecha_final' => 'required|date|after:fecha_contrato',
             'carreras' => 'nullable|array',
-            'carreras.*' => 'exists:carrera,id' // Cambiado de 'carreras' a 'carrera'
-            ]);
+            'carreras.*' => 'exists:carrera,id'
+        ]);
 
         try {
             DB::beginTransaction();
@@ -77,6 +100,7 @@ class DocenteController extends Controller
                 'telefono' => $request->telefono,
                 'sueldo' => $request->sueldo,
                 'fecha_contrato' => $request->fecha_contrato,
+                'fecha_final' => $request->fecha_final,
                 'id_users' => $user->id
             ]);
 
@@ -110,20 +134,26 @@ class DocenteController extends Controller
 
     public function show($codigo)
     {
-        $docente = Docente::with(['user', 'carreras', 'asistencias.grupoMateria.materia'])->findOrFail($codigo);
+        // Verificar autenticación
+        if (!auth()->check()) {
+            return redirect()->route('login');
+        }
+
+        $docente = Docente::with(['user', 'carreras'])->findOrFail($codigo);
         
-        // Obtener materias únicas a través de asistencias
-        $materiasDelDocente = $docente->asistencias->groupBy(function($asistencia) {
-            return $asistencia->grupoMateria->sigla_materia;
-        })->map(function($group) {
-            return $group->first()->grupoMateria->materia;
-        });
+        // Obtener materias del docente si existe la relación
+        $materiasDelDocente = collect();
         
         return view('admin.docentes.show', compact('docente', 'materiasDelDocente'));
     }
 
     public function edit($codigo)
     {
+        // Verificar autenticación
+        if (!auth()->check()) {
+            return redirect()->route('login');
+        }
+
         if (!auth()->user()->hasRole('admin')) {
             abort(403, 'No tienes permisos para editar docentes.');
         }
@@ -142,6 +172,11 @@ class DocenteController extends Controller
 
     public function update(Request $request, $codigo)
     {
+        // Verificar autenticación
+        if (!auth()->check()) {
+            return redirect()->route('login');
+        }
+
         $docente = Docente::findOrFail($codigo);
 
         $request->validate([
@@ -149,7 +184,7 @@ class DocenteController extends Controller
                 'required',
                 'string',
                 'max:20',
-                Rule::unique('docentes')->ignore($docente->codigo, 'codigo')
+                Rule::unique('docente')->ignore($docente->codigo, 'codigo')
             ],
             'nombre' => 'required|string|max:255',
             'email' => [
@@ -160,8 +195,9 @@ class DocenteController extends Controller
             'telefono' => 'required|string|max:15',
             'sueldo' => 'required|numeric|min:0',
             'fecha_contrato' => 'required|date',
+            'fecha_final' => 'required|date|after:fecha_contrato',
             'carreras' => 'nullable|array',
-            'carreras.*' => 'exists:carreras,id'
+            'carreras.*' => 'exists:carrera,id'
         ]);
 
         try {
@@ -178,7 +214,8 @@ class DocenteController extends Controller
                 'codigo' => $request->codigo,
                 'telefono' => $request->telefono,
                 'sueldo' => $request->sueldo,
-                'fecha_contrato' => $request->fecha_contrato
+                'fecha_contrato' => $request->fecha_contrato,
+                'fecha_final' => $request->fecha_final
             ]);
 
             // Actualizar carreras (solo las permitidas)
@@ -210,6 +247,11 @@ class DocenteController extends Controller
 
     public function destroy($codigo)
     {
+        // Verificar autenticación
+        if (!auth()->check()) {
+            return redirect()->route('login');
+        }
+
         if (!auth()->user()->hasRole('admin')) {
             abort(403, 'No tienes permisos para eliminar docentes.');
         }
@@ -240,6 +282,279 @@ class DocenteController extends Controller
         }
     }
 
+// =============================================
+// MÉTODOS PARA CARGA HORARIA
+// =============================================
+ public function cargaHoraria($codigo)
+    {
+        if (!auth()->check()) {
+            return redirect()->route('login');
+        }
+
+        $docente = Docente::with(['user', 'carreras'])->findOrFail($codigo);
+        
+        // Obtener grupos asignados al docente a través de ASISTENCIA - CORREGIDO
+        $gruposAsignados = GrupoMateria::whereHas('asistencias', function($query) use ($docente) {
+            $query->where('codigo_docente', $docente->codigo);
+        })
+        ->with(['materia', 'grupo', 'gestion', 'horarios.horario', 'horarios.aula'])
+        ->get();
+        // Obtener TODOS los grupos existentes (para mostrar en la vista)
+        $gruposExistentes = GrupoMateria::with(['materia', 'grupo', 'gestion'])
+        ->get()
+        ->groupBy(function($item) {
+            return $item->materia->sigla . ' - ' . $item->grupo->nombre . ' - ' . $item->gestion->semestre;
+        });
+        // Calcular horas por materia y totales
+$cargaPorMateria = [];
+    $totalHorasSemana = 0;
+
+    foreach ($gruposAsignados as $grupoMateria) {
+        $horasMateria = 0;
+        
+        foreach ($grupoMateria->horarios as $horarioAsignado) {
+            if ($horarioAsignado->horario) {
+                $horaInicio = Carbon::parse($horarioAsignado->horario->hora_inicio);
+                $horaFin = Carbon::parse($horarioAsignado->horario->hora_fin);
+                $horasMateria += $horaInicio->diffInHours($horaFin);
+            }
+        }
+
+        $materiaKey = $grupoMateria->materia->sigla . '_' . $grupoMateria->id_gestion;
+        
+        if (!isset($cargaPorMateria[$materiaKey])) {
+            $cargaPorMateria[$materiaKey] = [
+                'materia' => $grupoMateria->materia,
+                'gestion' => $grupoMateria->gestion,
+                'horas_semana' => 0,
+                'grupos' => []
+            ];
+        }
+        
+        $cargaPorMateria[$materiaKey]['horas_semana'] += $horasMateria;
+        $cargaPorMateria[$materiaKey]['grupos'][] = $grupoMateria;
+        $totalHorasSemana += $horasMateria;
+    }
+
+    // Obtener datos para formulario de asignación
+    $aulas = Aula::all();
+    $gestiones = GestionAcademica::all();
+    $grupos = Grupo::all();
+    
+    // SOLUCIÓN DEFINITIVA: Obtener TODAS las materias para el select
+    $materias = Materia::all();
+
+    return view('admin.docentes.carga-horaria', compact(
+        'docente', 
+        'cargaPorMateria',
+        'totalHorasSemana',
+        'aulas',
+        'gestiones',
+        'grupos',
+        'materias',
+        'gruposAsignados',
+        'gruposExistentes' // ← AGREGAR esta variable al compact
+    ));
+    }
+
+public function asignarGrupo(Request $request, $codigo)
+{
+    if (!auth()->check()) {
+        return redirect()->route('login');
+    }
+
+    $docente = Docente::findOrFail($codigo);
+
+    $request->validate([
+        'materia_sigla' => 'required|string|exists:materia,sigla',
+        'id_gestion' => 'required|exists:gestion_academica,id',
+        'id_grupo' => 'required|exists:grupo,id',
+        'aula_id' => 'required|exists:aula,id',
+        'horarios' => 'required|array|min:1',
+        'horarios.*.dia' => 'required|string|in:Lunes,Martes,Miércoles,Jueves,Viernes,Sábado',
+        'horarios.*.hora_inicio' => 'required|date_format:H:i',
+        'horarios.*.hora_fin' => 'required|date_format:H:i|after:horarios.*.hora_inicio'
+    ]);
+
+    try {
+        DB::beginTransaction();
+
+        // Verificar si ya existe el grupo
+        $grupoMateriaExistente = GrupoMateria::where([
+            'sigla_materia' => $request->materia_sigla,
+            'id_grupo' => $request->id_grupo,
+            'id_gestion' => $request->id_gestion
+        ])->first();
+
+        if ($grupoMateriaExistente) {
+            $grupoMateria = $grupoMateriaExistente;
+        } else {
+            $grupoMateria = GrupoMateria::create([
+                'sigla_materia' => $request->materia_sigla,
+                'id_grupo' => $request->id_grupo,
+                'id_gestion' => $request->id_gestion
+            ]);
+        }
+
+        // Verificar límite de horas (40 horas/semana)
+        $horasTotales = $this->calcularHorasDocente($docente->codigo, $request->id_gestion);
+        $nuevasHoras = 0;
+
+        foreach ($request->horarios as $horarioData) {
+            $horaInicio = Carbon::parse($horarioData['hora_inicio']);
+            $horaFin = Carbon::parse($horarioData['hora_fin']);
+            $nuevasHoras += $horaInicio->diffInHours($horaFin);
+        }
+
+        if ($horasTotales + $nuevasHoras > 40) {
+            return redirect()->back()
+                ->with('error', "El docente excedería el límite de 40 horas/semana. Horas actuales: {$horasTotales}h, Nuevas horas: {$nuevasHoras}h")
+                ->withInput();
+        }
+
+        // Función para mapear días a formato de 3 letras
+        $mapearDia = function($diaCompleto) {
+            $diasMap = [
+                'Lunes' => 'LUN',
+                'Martes' => 'MAR',
+                'Miércoles' => 'MIE',
+                'Jueves' => 'JUE',
+                'Viernes' => 'VIE',
+                'Sábado' => 'SAB'
+            ];
+            return $diasMap[$diaCompleto] ?? 'LUN';
+        };
+
+        // Crear el PRIMER horario
+        $primerHorarioData = $request->horarios[0];
+        $horarioParaAsistencia = Horario::create([
+            'dia' => $mapearDia($primerHorarioData['dia']),
+            'hora_inicio' => $primerHorarioData['hora_inicio'],
+            'hora_fin' => $primerHorarioData['hora_fin']
+        ]);
+
+        // CORREGIDO: Usar un estado válido ('presente', 'ausente' o 'justificado')
+        Asistencia::create([
+            'fecha' => now()->toDateString(),
+            'hora_registro' => now()->toTimeString(),
+            'estado' => 'presente', // ← CAMBIAR 'asignado' por 'presente'
+            'codigo_docente' => $docente->codigo,
+            'id_grupo_materia' => $grupoMateria->id,
+            'id_horario' => $horarioParaAsistencia->id
+        ]);
+
+        // Asignar TODOS los horarios
+        foreach ($request->horarios as $index => $horarioData) {
+            if ($index === 0) {
+                GrupoMateriaHorario::create([
+                    'id_grupo_materia' => $grupoMateria->id,
+                    'id_horario' => $horarioParaAsistencia->id,
+                    'id_aula' => $request->aula_id
+                ]);
+                continue;
+            }
+            
+            // Para los demás horarios
+            $horario = Horario::create([
+                'dia' => $mapearDia($horarioData['dia']),
+                'hora_inicio' => $horarioData['hora_inicio'],
+                'hora_fin' => $horarioData['hora_fin']
+            ]);
+
+            GrupoMateriaHorario::create([
+                'id_grupo_materia' => $grupoMateria->id,
+                'id_horario' => $horario->id,
+                'id_aula' => $request->aula_id
+            ]);
+        }
+
+        DB::commit();
+
+        return redirect()->route('admin.docentes.carga-horaria', $docente->codigo)
+            ->with('success', 'Grupo y horario asignados exitosamente.');
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return redirect()->back()
+            ->with('error', 'Error al asignar grupo y horario: ' . $e->getMessage())
+            ->withInput();
+    }
+}
+    // MÉTODO ELIMINAR GRUPO FALTANTE
+public function eliminarGrupo($codigo, $grupoMateriaId)
+{
+    if (!auth()->check()) {
+        return redirect()->route('login');
+    }
+
+    $docente = Docente::findOrFail($codigo);
+    $grupoMateria = GrupoMateria::findOrFail($grupoMateriaId);
+
+    try {
+        DB::beginTransaction();
+
+        // Eliminar asistencias relacionadas
+        Asistencia::where('id_grupo_materia', $grupoMateria->id)
+                 ->where('codigo_docente', $docente->codigo)
+                 ->delete();
+
+        // Eliminar relaciones en grupo_materia_horario
+        GrupoMateriaHorario::where('id_grupo_materia', $grupoMateria->id)->delete();
+        
+        // Eliminar el grupo materia
+        $grupoMateria->delete();
+
+        DB::commit();
+
+        return redirect()->route('admin.docentes.carga-horaria', $docente->codigo)
+            ->with('success', 'Grupo eliminado exitosamente.');
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return redirect()->back()
+            ->with('error', 'Error al eliminar el grupo: ' . $e->getMessage());
+    }
+}
+
+    // MÉTODO AUXILIAR PARA CALCULAR HORAS
+    private function calcularHorasDocente($docenteCodigo, $gestionId = null)
+    {
+        $query = GrupoMateria::whereHas('asistencias', function($query) use ($docenteCodigo) {
+            $query->where('codigo_docente', $docenteCodigo);
+        })->with(['horarios.horario']);
+
+        if ($gestionId) {
+            $query->where('id_gestion', $gestionId);
+        }
+
+        $gruposAsignados = $query->get();
+        $totalHoras = 0;
+
+        foreach ($gruposAsignados as $grupoMateria) {
+            foreach ($grupoMateria->horarios as $horarioAsignado) {
+                if ($horarioAsignado->horario) {
+                    $horaInicio = Carbon::parse($horarioAsignado->horario->hora_inicio);
+                    $horaFin = Carbon::parse($horarioAsignado->horario->hora_fin);
+                    $totalHoras += $horaInicio->diffInHours($horaFin);
+                }
+            }
+        }
+
+        return $totalHoras;
+    }
+// Agrega este método al final de tu clase DocenteController, antes del cierre }
+private function convertirDiaCompleto($diaTresLetras)
+{
+    $diasMap = [
+        'LUN' => 'Lunes',
+        'MAR' => 'Martes',
+        'MIE' => 'Miércoles',
+        'JUE' => 'Jueves',
+        'VIE' => 'Viernes',
+        'SAB' => 'Sábado'
+    ];
+    return $diasMap[$diaTresLetras] ?? $diaTresLetras;
+}
     // Método auxiliar para obtener carreras permitidas
     private function getCarrerasPermitidas()
     {

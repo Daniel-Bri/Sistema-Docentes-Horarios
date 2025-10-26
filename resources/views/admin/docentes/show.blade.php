@@ -124,4 +124,25 @@
         </div>
     </div>
 </div>
+<!-- Sección Carga Horaria -->
+<div class="mt-6 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-6 border border-indigo-100 shadow-sm">
+    <h4 class="text-lg font-bold text-indigo-800 mb-6 flex items-center">
+        <i class="fas fa-calendar-alt mr-3"></i>
+        Gestión de Carga Horaria
+    </h4>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Card para Carga Horaria -->
+        <div class="bg-white rounded-xl p-6 border border-indigo-200 shadow-sm hover:shadow-md transition-all duration-200">
+            <div class="flex items-center mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white mr-4">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div>
+                    <h5 class="font-bold text-indigo-900">Carga Horaria</h5>
+                    <p class="text-sm text-indigo-600">Asignar grupos y horarios</p>
+                </div>
+            </div>
+            <a href="{{ route('admin.docentes.carga-horaria', $docente->codigo) }}" 
+               class="inline-flex items-center px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-semibold rounded-xl transition-all duration"
 @endsection

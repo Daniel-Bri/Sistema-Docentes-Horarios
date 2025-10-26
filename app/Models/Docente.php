@@ -50,4 +50,16 @@ class Docente extends Model
     {
         return $this->hasMany(Asistencia::class, 'codigo_docente', 'codigo');
     }
+
+    // Relación con Materias a través de carreras
+    public function materias()
+    {
+        return $this->hasManyThrough(Materia::class, DocenteCarrera::class, 'docente_codigo', 'carrera_id', 'codigo', 'carrera_id');
+    }
+
+    // Relación con GruposMateria (grupos asignados)
+    public function gruposMateria()
+    {
+        return $this->hasMany(GrupoMateria::class, 'docente_codigo', 'codigo');
+    }
 }

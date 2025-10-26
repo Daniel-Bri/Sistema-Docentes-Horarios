@@ -107,15 +107,34 @@
                             <i class="far fa-calendar mr-1"></i>
                           
                         </span>
-                        <div class="flex gap-2">
-                            <a href="{{ route('docentes.show', $docente->codigo) }}" 
-                               class="inline-flex items-center px-3 py-2 bg-[#3CA6A6] hover:bg-[#026773] text-white text-xs font-semibold rounded-xl transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
-                                <i class="fas fa-eye mr-1"></i>
-                            </a>
-                            @can('admin')
-                            <a href="{{ route('docentes.edit', $docente->codigo) }}" 
-                               class="inline-flex items-center px-3 py-2 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-semibold rounded-xl transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
-                                <i class="fas fa-edit mr-1"></i>
+                            <div class="flex gap-2">
+                                <a href="{{ route('docentes.show', $docente->codigo) }}" 
+                                class="inline-flex items-center px-3 py-2 bg-[#3CA6A6] hover:bg-[#026773] text-white text-xs font-semibold rounded-xl transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                                    <i class="fas fa-eye mr-1"></i>
+                                </a>
+                                
+                                <!-- BOTÓN CARGA HORARIA MOBILE -->
+                                <a href="{{ route('admin.docentes.carga-horaria', $docente->codigo) }}" 
+                                class="inline-flex items-center px-3 py-2 bg-purple-500 hover:bg-purple-600 text-white text-xs font-semibold rounded-xl transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                                    <i class="fas fa-clock mr-1"></i>
+                                </a>
+                                
+                                @can('admin')
+                                <a href="{{ route('docentes.edit', $docente->codigo) }}" 
+                                class="inline-flex items-center px-3 py-2 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-semibold rounded-xl transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                                    <i class="fas fa-edit mr-1"></i>
+                                </a>
+                                <form action="{{ route('docentes.destroy', $docente->codigo) }}" method="POST" class="inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" 
+                                            onclick="return confirm('¿Estás seguro de eliminar este docente?')"
+                                            class="inline-flex items-center px-3 py-2 bg-red-500 hover:bg-red-600 text-white text-xs font-semibold rounded-xl transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                                        <i class="fas fa-trash mr-1"></i>
+                                    </button>
+                                </form>
+                                @endcan
+                            </div>
                             </a>
                             <form action="{{ route('docentes.destroy', $docente->codigo) }}" method="POST" class="inline">
                                 @csrf
@@ -126,7 +145,7 @@
                                     <i class="fas fa-trash mr-1"></i>
                                 </button>
                             </form>
-                            @endcan
+                          
                         </div>
                     </div>
                 </div>
