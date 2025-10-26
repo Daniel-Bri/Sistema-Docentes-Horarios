@@ -138,10 +138,11 @@
                         <i class="fas fa-chevron-down text-xs transition-transform"></i>
                     </button>
                     <div class="submenu ml-6">
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate">
-                            <i class="fas fa-users mr-2 w-4 h-4"></i>
-                            Gestión de Usuarios
-                        </a>
+                            <a href="{{ route('admin.users.index') }}" 
+                            class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
+                                <i class="fas fa-users mr-2 w-4 h-4"></i>
+                                Gestión de Usuarios
+                            </a>
                             <a href="{{ route('admin.roles.index') }}" 
                             class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
                                 <i class="fas fa-user-shield mr-2 w-4 h-4"></i>

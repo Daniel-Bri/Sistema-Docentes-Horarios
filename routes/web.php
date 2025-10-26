@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RolController;
 use App\Http\Controllers\DocenteController;
 
+
 // Página de inicio
 Route::get('/', function () {
     return view('welcome');
@@ -52,4 +53,9 @@ Route::prefix('admin/docentes')->group(function () {
     Route::get('/{codigo}/carga-horaria', [DocenteController::class, 'cargaHoraria'])->name('admin.docentes.carga-horaria');
     Route::post('/{codigo}/asignar-grupo', [DocenteController::class, 'asignarGrupo'])->name('admin.docentes.asignar-grupo');
     Route::delete('/{codigo}/eliminar-grupo/{grupoMateriaId}', [DocenteController::class, 'eliminarGrupo'])->name('admin.docentes.eliminar-grupo');
+Route::prefix('admin')->group(function () {
+    Route::get('/users', [UserController::class, 'index'])->name('admin.users.index');
+    Route::get('/users/create', [UserController::class, 'create'])->name('admin.users.create');
+    // ... otras rutas de usuarios
+});
 });

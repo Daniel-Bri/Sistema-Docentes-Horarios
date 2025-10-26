@@ -3,285 +3,188 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Models\Grupo;
-use App\Models\Carrera;
-use App\Models\Docente;
+use Spatie\Permission\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rules;
-use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
     /**
-     * Display a listing of the users with search functionality.
+     * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        $query = User::with(['roles', 'docente']);
+        $search = $request->get('search');
+        
+        $users = User::with('roles')
+            ->when($search, function($query) use ($search) {
+                return $query->where('name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
 
-        // Búsqueda por nombre, email o ID
-        if ($request->has('search') && !empty($request->search)) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('name', 'LIKE', "%{$search}%")
-                  ->orWhere('email', 'LIKE', "%{$search}%")
-                  ->orWhere('id', 'LIKE', "%{$search}%");
-            });
-        }
-
-        // Filtro por estado de verificación de email
-        if ($request->has('email_verified') && $request->email_verified !== '') {
-            if ($request->email_verified == 'verified') {
-                $query->whereNotNull('email_verified_at');
-            } elseif ($request->email_verified == 'not_verified') {
-                $query->whereNull('email_verified_at');
-            }
-        }
-
-        // Filtro por rol
-        if ($request->has('role') && !empty($request->role)) {
-            $query->role($request->role);
-        }
-
-        $users = $query->orderBy('name')->paginate(10);
-        $roles = Role::all();
-
-        return view('users.index', compact('users', 'roles'));
+        return view('admin.users.index', compact('users', 'search'));
     }
 
     /**
-     * Show the form for creating a new user.
+     * Show the form for creating a new resource.
      */
     public function create()
     {
         $roles = Role::all();
-        $grupos = Grupo::where('gestion', date('Y'))->get();
-        $carreras = Carrera::all();
-        
-        return view('users.create', compact('roles', 'grupos', 'carreras'));
+        return view('admin.users.create', compact('roles'));
     }
 
     /**
-     * Store a newly created user in storage.
+     * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role' => 'required|exists:roles,name',
-            'codigo_docente' => 'nullable|required_if:role,docente|string|max:50|unique:docente,codigo',
-            'telefono' => 'nullable|string|max:20',
-            'sueldo' => 'nullable|numeric|min:0',
-            'carreras' => 'nullable|array',
-            'carreras.*' => 'exists:carrera,id',
+            'roles' => 'array',
+            'roles.*' => 'exists:roles,id'
         ]);
 
-        DB::transaction(function () use ($validated) {
-            // Crear usuario
+        DB::transaction(function() use ($request) {
             $user = User::create([
-                'name' => $validated['name'],
-                'email' => $validated['email'],
-                'password' => Hash::make($validated['password']),
-                'email_verified_at' => now(), // Auto-verificar para administradores
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'password_set' => true,
             ]);
 
-            // Asignar rol
-            $user->assignRole($validated['role']);
-
-            // Si es docente, crear registro en tabla docente
-            if ($validated['role'] === 'docente' && !empty($validated['codigo_docente'])) {
-                $docente = Docente::create([
-                    'codigo' => $validated['codigo_docente'],
-                    'fecha_contrato' => now(),
-                    'sueldo' => $validated['sueldo'] ?? 0,
-                    'telefono' => $validated['telefono'] ?? null,
-                    'id_users' => $user->id,
-                ]);
-
-                // Asignar carreras al docente si se proporcionaron
-                if (!empty($validated['carreras'])) {
-                    $docente->carreras()->sync($validated['carreras']);
-                }
+            if ($request->has('roles')) {
+                $user->roles()->sync($request->roles);
             }
         });
 
-        return redirect()->route('users.index')
-            ->with('success', 'Usuario creado exitosamente.');
+        return redirect()->route('admin.users.index')
+                        ->with('success', 'Usuario creado exitosamente.');
     }
 
     /**
-     * Display the specified user.
+     * Display the specified resource.
      */
     public function show(User $user)
     {
-        $user->load(['roles', 'docente.carreras', 'docente.gruposMateria']);
-        
-        return view('users.show', compact('user'));
+        $user->load('roles');
+        return view('admin.users.show', compact('user'));
     }
 
     /**
-     * Show the form for editing the specified user.
+     * Show the form for editing the specified resource.
      */
     public function edit(User $user)
     {
         $roles = Role::all();
-        $grupos = Grupo::where('gestion', date('Y'))->get();
-        $carreras = Carrera::all();
-        
-        $user->load(['docente.carreras']);
-        
-        return view('users.edit', compact('user', 'roles', 'grupos', 'carreras'));
+        $user->load('roles');
+        return view('admin.users.edit', compact('user', 'roles'));
     }
 
     /**
-     * Update the specified user in storage.
+     * Update the specified resource in storage.
      */
     public function update(Request $request, User $user)
     {
-        $validated = $request->validate([
+        $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-            'password' => 'nullable|confirmed|min:8',
-            'role' => 'required|exists:roles,name',
-            'codigo_docente' => 'nullable|required_if:role,docente|string|max:50|unique:docente,codigo,' . ($user->docente ? $user->docente->codigo : 'NULL') . ',codigo',
-            'telefono' => 'nullable|string|max:20',
-            'sueldo' => 'nullable|numeric|min:0',
-            'carreras' => 'nullable|array',
-            'carreras.*' => 'exists:carrera,id',
+            'roles' => 'array',
+            'roles.*' => 'exists:roles,id'
         ]);
 
-        DB::transaction(function () use ($validated, $user) {
-            // Actualizar datos básicos del usuario
-            $updateData = [
-                'name' => $validated['name'],
-                'email' => $validated['email'],
-            ];
+        DB::transaction(function() use ($request, $user) {
+            $user->update([
+                'name' => $request->name,
+                'email' => $request->email,
+            ]);
 
-            // Actualizar contraseña si se proporcionó
-            if (!empty($validated['password'])) {
-                $updateData['password'] = Hash::make($validated['password']);
-            }
-
-            $user->update($updateData);
-
-            // Sincronizar roles
-            $user->syncRoles([$validated['role']]);
-
-            // Manejar datos de docente
-            if ($validated['role'] === 'docente') {
-                if ($user->docente) {
-                    // Actualizar docente existente
-                    $user->docente->update([
-                        'codigo' => $validated['codigo_docente'],
-                        'telefono' => $validated['telefono'] ?? null,
-                        'sueldo' => $validated['sueldo'] ?? 0,
-                    ]);
-
-                    // Sincronizar carreras
-                    if (isset($validated['carreras'])) {
-                        $user->docente->carreras()->sync($validated['carreras']);
-                    }
-                } else {
-                    // Crear nuevo registro de docente
-                    $docente = Docente::create([
-                        'codigo' => $validated['codigo_docente'],
-                        'fecha_contrato' => now(),
-                        'sueldo' => $validated['sueldo'] ?? 0,
-                        'telefono' => $validated['telefono'] ?? null,
-                        'id_users' => $user->id,
-                    ]);
-
-                    // Asignar carreras
-                    if (!empty($validated['carreras'])) {
-                        $docente->carreras()->sync($validated['carreras']);
-                    }
-                }
-            } else {
-                // Si el rol cambió y ya no es docente, eliminar registro de docente si existe
-                if ($user->docente) {
-                    $user->docente->carreras()->detach();
-                    $user->docente->delete();
-                }
+            if ($request->has('roles')) {
+                $user->roles()->sync($request->roles);
             }
         });
 
-        return redirect()->route('users.index')
-            ->with('success', 'Usuario actualizado exitosamente.');
+        return redirect()->route('admin.users.index')
+                        ->with('success', 'Usuario actualizado exitosamente.');
     }
 
     /**
-     * Remove the specified user from storage.
+     * Remove the specified resource from storage.
      */
     public function destroy(User $user)
     {
-        DB::transaction(function () use ($user) {
-            // Eliminar datos de docente si existen
-            if ($user->docente) {
-                $user->docente->carreras()->detach();
-                $user->docente->delete();
-            }
-
-            // Eliminar roles y permisos
+        DB::transaction(function() use ($user) {
             $user->roles()->detach();
-            $user->permissions()->detach();
-
-            // Eliminar usuario
             $user->delete();
         });
 
-        return redirect()->route('users.index')
-            ->with('success', 'Usuario eliminado exitosamente.');
+        return redirect()->route('admin.users.index')
+                        ->with('success', 'Usuario eliminado exitosamente.');
     }
 
     /**
-     * Activar/Desactivar usuario (usando email_verified_at como estado)
+     * Update user password
      */
-    public function toggleStatus(User $user)
+    public function updatePassword(Request $request, User $user)
     {
-        if ($user->email_verified_at) {
-            $user->update(['email_verified_at' => null]);
-            $message = 'Usuario desactivado exitosamente.';
-        } else {
-            $user->update(['email_verified_at' => now()]);
-            $message = 'Usuario activado exitosamente.';
-        }
+        $request->validate([
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ]);
 
-        return redirect()->route('users.index')
-            ->with('success', $message);
+        $user->update([
+            'password' => Hash::make($request->password),
+            'password_set' => true,
+        ]);
+
+        return redirect()->route('admin.users.show', $user)
+                        ->with('success', 'Contraseña actualizada exitosamente.');
     }
 
     /**
-     * Forzar verificación de email
+     * Update email verification status
      */
-    public function verifyEmail(User $user)
+    public function updateVerification(User $user)
     {
-        $user->update(['email_verified_at' => now()]);
+        $user->update([
+            'email_verified_at' => $user->email_verified_at ? null : now()
+        ]);
 
-        return redirect()->route('users.index')
-            ->with('success', 'Email verificado manualmente.');
+        $status = $user->email_verified_at ? 'verificado' : 'pendiente';
+
+        return redirect()->route('admin.users.show', $user)
+                        ->with('success', "Estado de verificación actualizado a {$status}.");
     }
 
     /**
-     * Mostrar perfil del docente
+     * Generate temporal token
      */
-    public function showDocenteProfile(Docente $docente)
+    public function generateTemporalToken(User $user)
     {
-        $docente->load(['user', 'carreras', 'gruposMateria.grupo', 'gruposMateria.materia']);
+        $temporalToken = Str::random(60);
         
-        return view('users.docente-profile', compact('docente'));
+        $user->update([
+            'temporal_token' => Hash::make($temporalToken),
+            'temporal_token_created_at' => now()
+        ]);
+
+        return redirect()->route('admin.users.show', $user)
+                        ->with('success', 'Token temporal generado exitosamente.')
+                        ->with('temporal_token', $temporalToken);
     }
 
     /**
-     * Obtener usuarios por rol (API para selects)
+     * Show user profile
      */
-    public function getByRole($role)
+    public function profile(User $user)
     {
-        $users = User::role($role)->get(['id', 'name', 'email']);
-        
-        return response()->json($users);
+        $user->load('roles');
+        return view('admin.users.profile', compact('user'));
     }
 }
