@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crear Nuevo Horario</title>
+    <title>Crear Nuevo Horario Base</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -60,12 +60,19 @@
                         </svg>
                     </div>
                     <div>
-                        <h1 class="text-lg sm:text-xl font-semibold text-cream-200">Crear Nuevo Horario</h1>
-                        <p class="text-xs text-cream-300">Asignar horario a docente, grupo y materia</p>
+                        <h1 class="text-lg sm:text-xl font-semibold text-cream-200">Crear Nuevo Horario Base</h1>
+                        <p class="text-xs text-cream-300">Definir nuevo horario sin asignación</p>
                     </div>
                 </div>
 
                 <div class="flex items-center gap-3">
+                    <a href="{{ route('coordinador.horarios.asignar') }}"
+                       class="inline-flex items-center gap-2 bg-deep-teal-600 text-cream-200 px-4 py-2 rounded-lg font-medium hover:bg-deep-teal-500 transition shadow-md border border-deep-teal-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Asignar Horario
+                    </a>
                     <a href="{{ route('coordinador.horarios.index') }}"
                        class="inline-flex items-center gap-2 bg-cream-200 text-deep-teal-700 px-4 py-2 rounded-lg font-medium hover:bg-cream-300 transition shadow-md">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -84,11 +91,13 @@
             <!-- FORMULARIO -->
             <div class="gradient-card rounded-xl p-6 shadow-lg">
                 <h2 class="text-xl font-semibold mb-6 text-cream-200 border-b border-deep-teal-400 pb-3">
-                    <i class="fas fa-plus-circle mr-2"></i>
-                    Información del Horario
+                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Información del Horario Base
                 </h2>
 
-                <form action="{{ route('coordinador.horarios.store') }}" method="POST">
+                <form action="{{ route('coordinador.horarios.store-base') }}" method="POST">
                     @csrf
 
                     <div class="space-y-6">
@@ -147,136 +156,40 @@
                             </div>
                         </div>
 
-                        <!-- ASIGNACIÓN ACADÉMICA -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- DOCENTE -->
-                            <div class="space-y-2">
-                                <label class="block text-sm font-medium text-cream-300">
-                                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                                    </svg>
-                                    Docente *
-                                </label>
-                                <select name="id_docente" required
-                                        class="w-full bg-deep-teal-600 text-cream-200 rounded-lg border border-deep-teal-400 p-3 focus:ring-2 focus:ring-cream-200 focus:border-transparent">
-                                    <option value="" class="bg-deep-teal-700">Seleccionar docente</option>
-                                    @foreach($docentes as $docente)
-                                        <option value="{{ $docente['id'] }}" {{ old('id_docente') == $docente['id'] ? 'selected' : '' }} class="bg-deep-teal-700">
-                                            {{ $docente['codigo'] }} - {{ $docente['nombre'] }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('id_docente')
-                                    <p class="text-red-300 text-sm mt-1">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <!-- MATERIA -->
-                            <div class="space-y-2">
-                                <label class="block text-sm font-medium text-cream-300">
-                                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                                    </svg>
-                                    Materia *
-                                </label>
-                                <select name="sigla_materia" required
-                                        class="w-full bg-deep-teal-600 text-cream-200 rounded-lg border border-deep-teal-400 p-3 focus:ring-2 focus:ring-cream-200 focus:border-transparent">
-                                    <option value="" class="bg-deep-teal-700">Seleccionar materia</option>
-                                    @foreach($materias as $materia)
-                                        <option value="{{ $materia->sigla }}" {{ old('sigla_materia') == $materia->sigla ? 'selected' : '' }} class="bg-deep-teal-700">
-                                            {{ $materia->sigla }} - {{ $materia->nombre }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('sigla_materia')
-                                    <p class="text-red-300 text-sm mt-1">{{ $message }}</p>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <!-- GRUPO Y AULA -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- GRUPO -->
-                            <div class="space-y-2">
-                                <label class="block text-sm font-medium text-cream-300">
-                                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                                    </svg>
-                                    Grupo *
-                                </label>
-                                <select name="id_grupo" required
-                                        class="w-full bg-deep-teal-600 text-cream-200 rounded-lg border border-deep-teal-400 p-3 focus:ring-2 focus:ring-cream-200 focus:border-transparent">
-                                    <option value="" class="bg-deep-teal-700">Seleccionar grupo</option>
-                                    @foreach($grupos as $grupo)
-                                        <option value="{{ $grupo->id }}" {{ old('id_grupo') == $grupo->id ? 'selected' : '' }} class="bg-deep-teal-700">
-                                            {{ $grupo->nombre }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('id_grupo')
-                                    <p class="text-red-300 text-sm mt-1">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <!-- AULA -->
-                            <div class="space-y-2">
-                                <label class="block text-sm font-medium text-cream-300">
-                                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                                    </svg>
-                                    Aula *
-                                </label>
-                                <select name="id_aula" required
-                                        class="w-full bg-deep-teal-600 text-cream-200 rounded-lg border border-deep-teal-400 p-3 focus:ring-2 focus:ring-cream-200 focus:border-transparent">
-                                    <option value="" class="bg-deep-teal-700">Seleccionar aula</option>
-                                    @foreach($aulas as $aula)
-                                        <option value="{{ $aula->id }}" {{ old('id_aula') == $aula->id ? 'selected' : '' }} class="bg-deep-teal-700">
-                                            {{ $aula->nombre }} - {{ $aula->tipo }} (Cap: {{ $aula->capacidad }})
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('id_aula')
-                                    <p class="text-red-300 text-sm mt-1">{{ $message }}</p>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <!-- ESTADO DEL AULA -->
+                        <!-- GESTIÓN (si es necesario) -->
                         <div class="space-y-2">
                             <label class="block text-sm font-medium text-cream-300">
                                 <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                 </svg>
-                                Estado del Aula *
+                                Gestión *
                             </label>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <label class="flex items-center p-4 bg-deep-teal-600 border-2 border-deep-teal-400 rounded-lg cursor-pointer hover:bg-deep-teal-500 transition has-[:checked]:border-cream-200 has-[:checked]:bg-deep-teal-500">
-                                    <input type="radio" name="estado_aula" value="ocupado" {{ old('estado_aula', 'ocupado') == 'ocupado' ? 'checked' : '' }} class="text-cream-200 focus:ring-cream-200 mr-3">
-                                    <div>
-                                        <div class="flex items-center">
-                                            <svg class="w-5 h-5 text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                            </svg>
-                                            <span class="font-semibold text-cream-200">Aula Ocupada</span>
-                                        </div>
-                                        <p class="text-cream-300 text-sm mt-1">Aula asignada para clase</p>
-                                    </div>
-                                </label>
-                                
-                                <label class="flex items-center p-4 bg-deep-teal-600 border-2 border-deep-teal-400 rounded-lg cursor-pointer hover:bg-deep-teal-500 transition has-[:checked]:border-cream-200 has-[:checked]:bg-deep-teal-500">
-                                    <input type="radio" name="estado_aula" value="disponible" {{ old('estado_aula') == 'disponible' ? 'checked' : '' }} class="text-cream-200 focus:ring-cream-200 mr-3">
-                                    <div>
-                                        <div class="flex items-center">
-                                            <svg class="w-5 h-5 text-yellow-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
-                                            </svg>
-                                            <span class="font-semibold text-cream-200">Aula Disponible</span>
-                                        </div>
-                                        <p class="text-cream-300 text-sm mt-1">Aula libre para uso</p>
-                                    </div>
-                                </label>
-                            </div>
-                            @error('estado_aula')
+                            <select name="id_gestion" required
+                                    class="w-full bg-deep-teal-600 text-cream-200 rounded-lg border border-deep-teal-400 p-3 focus:ring-2 focus:ring-cream-200 focus:border-transparent">
+                                <option value="" class="bg-deep-teal-700">Seleccionar gestión</option>
+                                @foreach($gestiones as $gestion)
+                                    <option value="{{ $gestion->id }}" {{ old('id_gestion') == $gestion->id ? 'selected' : '' }} class="bg-deep-teal-700">
+                                        {{ $gestion->nombre }} ({{ $gestion->anio }})
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('id_gestion')
+                                <p class="text-red-300 text-sm mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- DESCRIPCIÓN OPCIONAL -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-cream-300">
+                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                Descripción (Opcional)
+                            </label>
+                            <textarea name="descripcion" rows="3"
+                                      class="w-full bg-deep-teal-600 text-cream-200 rounded-lg border border-deep-teal-400 p-3 focus:ring-2 focus:ring-cream-200 focus:border-transparent"
+                                      placeholder="Ej: Horario matutino, bloque de 2 horas">{{ old('descripcion') }}</textarea>
+                            @error('descripcion')
                                 <p class="text-red-300 text-sm mt-1">{{ $message }}</p>
                             @enderror
                         </div>
@@ -305,7 +218,7 @@
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                 </svg>
-                                Crear Horario
+                                Crear Horario Base
                             </button>
                             <a href="{{ route('coordinador.horarios.index') }}"
                                class="flex-1 bg-deep-teal-600 text-cream-200 px-6 py-3 rounded-lg font-semibold hover:bg-deep-teal-500 transition shadow-md flex items-center justify-center gap-2 text-center border border-deep-teal-400">
@@ -332,27 +245,18 @@
                         <svg class="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                         </svg>
-                        <span>El sistema verificará automáticamente conflictos de horarios</span>
+                        <span>Este horario estará disponible para asignaciones futuras</span>
                     </div>
                     <div class="flex items-start gap-2">
                         <svg class="w-4 h-4 text-yellow-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
                         </svg>
-                        <span>Verifique la disponibilidad del aula antes de asignar</span>
+                        <span>Puede crear múltiples horarios base para diferentes días y horas</span>
                     </div>
                 </div>
             </div>
         </section>
     </main>
-
-    <!-- FOOTER -->
-    <footer class="gradient-header border-t border-deep-teal-700 py-6 mt-8">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center text-cream-300 text-sm">
-                <p>Sistema de Gestión de Horarios - {{ date('Y') }}</p>
-            </div>
-        </div>
-    </footer>
 
     <script>
         // Validación de horas

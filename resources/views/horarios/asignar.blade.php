@@ -61,7 +61,7 @@
                     </div>
                     <div>
                         <h1 class="text-lg sm:text-xl font-semibold text-cream-200">Asignar Horario Existente</h1>
-                        <p class="text-xs text-cream-300">Asignar horario predefinido a docente, grupo y materia</p>
+                        <p class="text-xs text-cream-300">Asignar horario predefinido a docente, materia y grupo</p>
                     </div>
                 </div>
 
@@ -94,7 +94,7 @@
                     <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
-                    Horarios Disponibles
+                    Horarios Base Disponibles
                 </h2>
 
                 @if($horariosDisponibles->count() > 0)
@@ -104,7 +104,8 @@
                          data-horario-id="{{ $horario->id }}"
                          data-dia="{{ $horario->dia }}"
                          data-hora-inicio="{{ $horario->hora_inicio }}"
-                         data-hora-fin="{{ $horario->hora_fin }}">
+                         data-hora-fin="{{ $horario->hora_fin }}"
+                         data-descripcion="{{ $horario->descripcion }}">
                         <div class="flex items-center justify-between mb-2">
                             <span class="bg-cream-200 text-deep-teal-700 px-2 py-1 rounded text-sm font-semibold">
                                 @php
@@ -120,6 +121,11 @@
                             {{ \Carbon\Carbon::parse($horario->hora_inicio)->format('H:i') }} - 
                             {{ \Carbon\Carbon::parse($horario->hora_fin)->format('H:i') }}
                         </div>
+                        @if($horario->descripcion)
+                        <div class="text-cream-400 text-xs text-center mt-1">
+                            {{ $horario->descripcion }}
+                        </div>
+                        @endif
                         <div class="text-cream-400 text-xs text-center mt-1">
                             {{ \Carbon\Carbon::parse($horario->hora_fin)->diffInHours(\Carbon\Carbon::parse($horario->hora_inicio)) }} horas
                         </div>
@@ -132,13 +138,13 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
                     </svg>
                     <h3 class="text-lg font-semibold text-cream-200 mb-2">No hay horarios disponibles</h3>
-                    <p class="text-cream-300 mb-4">Todos los horarios están asignados o no hay horarios creados.</p>
+                    <p class="text-cream-300 mb-4">Todos los horarios están asignados o no hay horarios base creados.</p>
                     <a href="{{ route('coordinador.horarios.create') }}"
                        class="inline-flex items-center gap-2 bg-cream-200 text-deep-teal-700 px-4 py-2 rounded-lg font-medium hover:bg-cream-300 transition shadow-md">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                         </svg>
-                        Crear Nuevo Horario
+                        Crear Nuevo Horario Base
                     </a>
                 </div>
                 @endif
@@ -151,7 +157,7 @@
                     <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
-                    Formulario de Asignación
+                    Asignar Horario a Clase
                 </h2>
 
                 <form action="{{ route('coordinador.horarios.store-asignacion') }}" method="POST" id="asignacionForm">
@@ -162,8 +168,11 @@
                         <div class="bg-deep-teal-500 border-2 border-cream-200 rounded-lg p-4" id="horarioSeleccionado" style="display: none;">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <div class="text-cream-300 text-sm">Horario Seleccionado</div>
+                                    <div class="text-cream-300 text-sm">Horario Base Seleccionado</div>
                                     <div class="text-cream-200 font-semibold text-lg" id="horarioInfo">
+                                        <!-- Se llena con JavaScript -->
+                                    </div>
+                                    <div class="text-cream-400 text-sm mt-1" id="horarioDescripcion">
                                         <!-- Se llena con JavaScript -->
                                     </div>
                                 </div>
@@ -391,11 +400,20 @@
                 const dia = this.dataset.dia;
                 const horaInicio = this.dataset.horaInicio;
                 const horaFin = this.dataset.horaFin;
+                const descripcion = this.dataset.descripcion;
 
                 // Actualizar formulario
                 document.getElementById('id_horario').value = horarioId;
                 document.getElementById('horarioInfo').textContent = 
                     `${diasCompletos[dia] || dia} - ${horaInicio} a ${horaFin}`;
+                
+                if (descripcion) {
+                    document.getElementById('horarioDescripcion').textContent = descripcion;
+                    document.getElementById('horarioDescripcion').style.display = 'block';
+                } else {
+                    document.getElementById('horarioDescripcion').style.display = 'none';
+                }
+                
                 document.getElementById('horarioSeleccionado').style.display = 'block';
 
                 // Habilitar botón de enviar
@@ -415,4 +433,24 @@
             });
 
             document.getElementById('id_horario').value = '';
-            document.getElementById('horario
+            document.getElementById('horarioSeleccionado').style.display = 'none';
+
+            // Deshabilitar botón de enviar
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('submitBtn').classList.add('opacity-50', 'cursor-not-allowed');
+            document.getElementById('submitBtn').classList.remove('opacity-100', 'cursor-pointer');
+
+            horarioSeleccionado = null;
+        }
+
+        // Validación del formulario antes de enviar
+        document.getElementById('asignacionForm').addEventListener('submit', function(e) {
+            if (!horarioSeleccionado) {
+                e.preventDefault();
+                alert('Por favor selecciona un horario base');
+                return false;
+            }
+        });
+    </script>
+</body>
+</html>
