@@ -10,4 +10,5 @@ Route::prefix('docente')
             return view('docente.dashboard');
         })->name('dashboard');
 
+        //Route::get('/asistencias', [AsistenciaController::class, 'index'])->name('asistencias.index');
     });

@@ -66,7 +66,6 @@ Route::prefix('admin')
         Route::post('/users/{user}/verification', [UserController::class, 'updateVerification'])->name('users.update-verification');
         Route::post('/users/{user}/generate-token', [UserController::class, 'generateTemporalToken'])->name('users.generate-token');
         
-        
         // Gestión de Aulas
         Route::resource('aulas', AulaController::class)->names('aulas');
     });
