@@ -14,6 +14,20 @@ Route::prefix('admin')
     ->as('admin.')
     ->group(function () {
 
+        // ✅ RUTAS DE AULAS PARA ADMIN (CORREGIDAS)
+        Route::prefix('aulas')->name('aulas.')->group(function () {
+            Route::get('/', [AulaController::class, 'index'])->name('index');
+            Route::get('/create', [AulaController::class, 'create'])->name('create');
+            Route::post('/', [AulaController::class, 'store'])->name('store');
+            Route::get('/{aula}', [AulaController::class, 'show'])->name('show');
+            Route::get('/{aula}/edit', [AulaController::class, 'edit'])->name('edit');
+            Route::put('/{aula}', [AulaController::class, 'update'])->name('update');
+            Route::delete('/{aula}', [AulaController::class, 'destroy'])->name('destroy');
+            
+            // Ruta adicional para cambiar estado
+            Route::post('/{aula}/cambiar-estado', [AulaController::class, 'cambiarEstado'])->name('cambiar-estado');
+        });
+
         // ✅ RUTAS DE MATERIAS PARA ADMIN
         Route::prefix('materias')->name('materias.')->group(function () {
             Route::get('/', [MateriaController::class, 'index'])->name('index');
@@ -23,6 +37,7 @@ Route::prefix('admin')
             Route::get('/{sigla}/edit', [MateriaController::class, 'edit'])->name('edit');
             Route::put('/{sigla}', [MateriaController::class, 'update'])->name('update');
             Route::delete('/{sigla}', [MateriaController::class, 'destroy'])->name('destroy');
+            
             // Agregar esta ruta para exportación
             Route::get('/export', [MateriaController::class, 'export'])->name('export');
 
@@ -65,7 +80,4 @@ Route::prefix('admin')
         Route::post('/users/{user}/password', [UserController::class, 'updatePassword'])->name('users.update-password');
         Route::post('/users/{user}/verification', [UserController::class, 'updateVerification'])->name('users.update-verification');
         Route::post('/users/{user}/generate-token', [UserController::class, 'generateTemporalToken'])->name('users.generate-token');
-        
-        // Gestión de Aulas
-        Route::resource('aulas', AulaController::class)->names('aulas');
     });
