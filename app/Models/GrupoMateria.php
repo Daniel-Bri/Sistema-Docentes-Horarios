@@ -51,5 +51,4 @@ class GrupoMateria extends Model
     {
         return $this->belongsTo(Docente::class, 'codigo_docente', 'codigo');
     }
-    
 }

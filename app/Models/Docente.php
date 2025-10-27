@@ -20,7 +20,6 @@ class Docente extends Model
         'id_users'
     ];
 
-    // Convertir fecha_contrato automáticamente a Carbon
     protected function fechaContrato(): Attribute
     {
         return Attribute::make(
@@ -36,30 +35,43 @@ class Docente extends Model
 
     public function carreras()
     {
-        // USAR LOS NOMBRES CORRECTOS DE LAS COLUMNAS
         return $this->belongsToMany(
             Carrera::class, 
             'docente_carrera', 
-            'codigo_docente',    // Cambiado a 'codigo_docente'
-            'id_carrera',        // Cambiado a 'id_carrera'
-            'codigo',            // Llave primaria de docente
-            'id'                 // Llave primaria de carrera
+            'codigo_docente',
+            'id_carrera',
+            'codigo',
+            'id'
         );
     }
+
     public function asistencias()
     {
         return $this->hasMany(Asistencia::class, 'codigo_docente', 'codigo');
     }
 
-    // Relación con Materias a través de carreras
-    public function materias()
+    // CORREGIR: Esta relación no funciona sin tabla intermedia
+    // public function materias()
+    // {
+    //     return $this->hasManyThrough(Materia::class, DocenteCarrera::class, 'docente_codigo', 'carrera_id', 'codigo', 'carrera_id');
+    // }
+
+    // NUEVA: Relación con GrupoMateriaHorario
+    public function grupoMateriaHorarios()
     {
-        return $this->hasManyThrough(Materia::class, DocenteCarrera::class, 'docente_codigo', 'carrera_id', 'codigo', 'carrera_id');
+        return $this->hasMany(GrupoMateriaHorario::class, 'codigo_docente', 'codigo');
     }
 
-    // Relación con GruposMateria (grupos asignados)
+    // Relación con GruposMateria a través de horarios
     public function gruposMateria()
     {
-        return $this->hasMany(GrupoMateria::class, 'docente_codigo', 'codigo');
+        return $this->hasManyThrough(
+            GrupoMateria::class,
+            GrupoMateriaHorario::class,
+            'codigo_docente', // Foreign key on GrupoMateriaHorario
+            'id', // Foreign key on GrupoMateria  
+            'codigo', // Local key on Docente
+            'id_grupo_materia' // Local key on GrupoMateriaHorario
+        );
     }
 }
