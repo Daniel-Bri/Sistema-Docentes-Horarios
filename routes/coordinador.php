@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MateriaController;
+use App\Http\Controllers\UserController;
 
 Route::prefix('coordinador')
     ->middleware(['auth', 'role:coordinador'])
@@ -10,7 +11,16 @@ Route::prefix('coordinador')
         Route::get('/dashboard', function () {
             return view('coordinador.dashboard');
         })->name('dashboard');
-
+        // =========================================================================
+        // GESTIÓN DE USUARIOS - COORDINADOR (CON CONTROLADOR EXISTENTE)
+            Route::prefix('users')->name('users.')->group(function () {
+            Route::get('/', [UserController::class, 'index'])->name('index');
+            Route::get('/create', [UserController::class, 'create'])->name('create');
+            Route::post('/', [UserController::class, 'store'])->name('store');
+            Route::get('/{user}/edit', [UserController::class, 'edit'])->name('edit');
+            Route::put('/{user}', [UserController::class, 'update'])->name('update');
+            Route::put('/{user}/password', [UserController::class, 'updatePassword'])->name('update-password');
+        });
         // =========================================================================
         // GESTIÓN DE MATERIAS - COORDINADOR (CON CONTROLADOR EXISTENTE)
         // =========================================================================
