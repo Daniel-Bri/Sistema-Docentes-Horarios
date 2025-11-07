@@ -31,7 +31,7 @@ class MateriaController extends Controller
         } elseif ($user->hasRole('coordinador')) {
             return "coordinador.materias.{$viewName}";
         } else {
-            return "materias.{$viewName}";
+            return "docente.materias.{$viewName}";
         }
     }
 
@@ -477,8 +477,25 @@ class MateriaController extends Controller
      */
     private function getMateriasForDocente($user)
     {
-        // Esta función necesita revisión ya que no hay relación directa docente-materia
+      $docente = $user->docente;
+    
+    if (!$docente) {
         return collect();
+    }
+
+    try {
+        // Obtener materias donde el docente tiene horarios asignados
+        return Materia::whereHas('grupoMaterias.horarios', function($query) use ($docente) {
+            $query->where('codigo_docente', $docente->codigo);
+        })
+        ->with(['categoria:id,nombre'])
+        ->orderBy('sigla')
+        ->get();
+
+    } catch (\Exception $e) {
+        \Log::error('Error en getMateriasForDocente: ' . $e->getMessage());
+        return collect();
+    }
     }
 
     /**

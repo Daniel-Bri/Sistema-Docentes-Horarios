@@ -105,17 +105,6 @@
                                 <p class="text-xs text-deep-teal-600 truncate">{{ $user->email }}</p>
                             </div>
                         </div>
-                        <div class="flex flex-col items-end gap-1">
-                            @if($user->email_verified_at)
-                                <span class="px-2 py-1 text-xs font-semibold bg-green-100 text-green-800 rounded-full border border-green-200">
-                                    <i class="fas fa-check-circle mr-1"></i>Verif.
-                                </span>
-                            @else
-                                <span class="px-2 py-1 text-xs font-semibold bg-yellow-100 text-yellow-800 rounded-full border border-yellow-200">
-                                    <i class="fas fa-clock mr-1"></i>Pend.
-                                </span>
-                            @endif
-                        </div>
                     </div>
                     
                     <div class="mb-3">
@@ -145,15 +134,19 @@
                                class="inline-flex items-center px-2 py-1 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
                                 <i class="fas fa-edit"></i>
                             </a>
+                            
+                            <!-- Botón eliminar para móvil -->
+                            @if(auth()->check() && auth()->user()->hasRole('admin'))
                             <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="inline">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" 
-                                        onclick="return confirm('¿Está seguro de eliminar este usuario? Esta acción no se puede deshacer.')"
+                                        onclick="return confirm('¿Está seguro de eliminar este usuario? Se eliminarán también los datos relacionados (docente, etc.). Esta acción no se puede deshacer.')"
                                         class="inline-flex items-center px-2 py-1 bg-red-500 hover:bg-red-600 text-white text-xs font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </form>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -169,7 +162,6 @@
                                 <th class="px-4 py-3 sm:px-6 sm:py-4 text-left text-xs font-bold text-[#F2E3D5] uppercase tracking-wider">Usuario</th>
                                 <th class="px-4 py-3 sm:px-6 sm:py-4 text-left text-xs font-bold text-[#F2E3D5] uppercase tracking-wider">Email</th>
                                 <th class="px-4 py-3 sm:px-6 sm:py-4 text-left text-xs font-bold text-[#F2E3D5] uppercase tracking-wider">Roles</th>
-                                <th class="px-4 py-3 sm:px-6 sm:py-4 text-left text-xs font-bold text-[#F2E3D5] uppercase tracking-wider">Verificación</th>
                                 <th class="px-4 py-3 sm:px-6 sm:py-4 text-left text-xs font-bold text-[#F2E3D5] uppercase tracking-wider">Registro</th>
                                 <th class="px-4 py-3 sm:px-6 sm:py-4 text-left text-xs font-bold text-[#F2E3D5] uppercase tracking-wider">Acciones</th>
                             </tr>
@@ -206,19 +198,6 @@
                                         @endforelse
                                     </div>
                                 </td>
-                                <td class="px-4 py-3 sm:px-6 sm:py-5 whitespace-nowrap">
-                                    @if($user->email_verified_at)
-                                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-bold rounded bg-green-100 text-green-800 border border-green-200">
-                                            <i class="fas fa-check-circle mr-1"></i>
-                                            Verificado
-                                        </span>
-                                    @else
-                                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-bold rounded bg-yellow-100 text-yellow-800 border border-yellow-200">
-                                            <i class="fas fa-clock mr-1"></i>
-                                            Pendiente
-                                        </span>
-                                    @endif
-                                </td>
                                 <td class="px-4 py-3 sm:px-6 sm:py-5 whitespace-nowrap text-sm text-deep-teal-700 font-medium">
                                     <i class="far fa-calendar mr-1 text-deep-teal-500"></i>
                                     {{ $user->created_at->format('d/m/Y') }}
@@ -226,15 +205,32 @@
                                 <td class="px-4 py-3 sm:px-6 sm:py-5 whitespace-nowrap text-sm font-medium">
                                     <div class="flex gap-1">
                                         <a href="{{ route('admin.users.show', $user) }}" 
-                                           class="inline-flex items-center px-2 sm:px-4 py-1 sm:py-2 bg-[#3CA6A6] hover:bg-[#026773] text-white text-xs sm:text-sm font-bold rounded-lg sm:rounded-xl transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                                           class="inline-flex items-center px-2 sm:px-4 py-1 sm:py-2 bg-[#3CA6A6] hover:bg-[#026773] text-white text-xs sm:text-sm font-bold rounded-lg sm:rounded-xl transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                                           title="Ver detalles">
                                             <i class="fas fa-eye mr-1 sm:mr-2 text-xs"></i>
                                             <span class="hidden sm:inline">Ver</span>
                                         </a>
                                         <a href="{{ route('admin.users.edit', $user) }}" 
-                                           class="inline-flex items-center px-2 sm:px-4 py-1 sm:py-2 bg-yellow-500 hover:bg-yellow-600 text-white text-xs sm:text-sm font-bold rounded-lg sm:rounded-xl transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                                           class="inline-flex items-center px-2 sm:px-4 py-1 sm:py-2 bg-yellow-500 hover:bg-yellow-600 text-white text-xs sm:text-sm font-bold rounded-lg sm:rounded-xl transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                                           title="Editar usuario">
                                             <i class="fas fa-edit mr-1 sm:mr-2 text-xs"></i>
                                             <span class="hidden sm:inline">Editar</span>
                                         </a>
+                                        
+                                        <!-- Botón eliminar para desktop -->
+                                        @if(auth()->check() && auth()->user()->hasRole('admin'))
+                                        <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" 
+                                                    onclick="return confirm('¿Está seguro de eliminar este usuario? Se eliminarán también los datos relacionados (docente, etc.). Esta acción no se puede deshacer.')"
+                                                    class="inline-flex items-center px-2 sm:px-4 py-1 sm:py-2 bg-red-500 hover:bg-red-600 text-white text-xs sm:text-sm font-bold rounded-lg sm:rounded-xl transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                                                    title="Eliminar usuario">
+                                                <i class="fas fa-trash mr-1 sm:mr-2 text-xs"></i>
+                                                <span class="hidden sm:inline">Eliminar</span>
+                                            </button>
+                                        </form>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>

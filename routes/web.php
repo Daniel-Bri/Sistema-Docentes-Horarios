@@ -60,3 +60,8 @@ Route::prefix('admin')->group(function () {
     // ... otras rutas de usuarios
 });
 });
+// Rutas para cambio de contraseña (accesibles para todos los usuarios autenticados)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/change-password', [App\Http\Controllers\Auth\ChangePasswordController::class, 'showChangePasswordForm'])->name('password.change');
+    Route::put('/change-password', [App\Http\Controllers\Auth\ChangePasswordController::class, 'update'])->name('password.update');
+});

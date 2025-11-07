@@ -111,19 +111,7 @@
                             </div>
                         </div>
 
-                        <!-- Información adicional -->
-                        <div class="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-blue-200">
-                            <div class="flex items-start">
-                                <i class="fas fa-info-circle text-blue-500 text-lg mt-0.5 mr-3"></i>
-                                <div class="flex-1">
-                                    <h4 class="text-sm font-bold text-blue-800">Información de Cuenta</h4>
-                                    <p class="text-xs sm:text-sm text-blue-600 mt-1">
-                                        El usuario será creado con la contraseña proporcionada y su email será verificado automáticamente.
-                                        No se requiere confirmación por correo electrónico.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
+
 
                         <!-- Roles -->
                         <div class="mb-6">
@@ -153,7 +141,137 @@
                                 </div>
                             @enderror
                         </div>
+                        <div id="docente-fields" class="hidden bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-blue-200 mt-4">
+    <h4 class="text-sm sm:text-lg font-bold text-blue-800 mb-4 flex items-center">
+        <i class="fas fa-chalkboard-teacher mr-2"></i>
+        Información del Docente
+    </h4>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+        <div>
+            <label for="codigo" class="block text-sm font-bold text-blue-700 mb-2">
+                Código del Docente *
+            </label>
+            <input type="text" 
+                   id="codigo" 
+                   name="codigo" 
+                   class="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-blue-200 rounded-lg sm:rounded-xl"
+                   placeholder="DOC001"
+                   value="{{ old('codigo') }}">
+            @error('codigo')
+                <div class="mt-2 text-sm text-red-600 flex items-center">
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    {{ $message }}
+                </div>
+            @enderror
+        </div>
+        
+        <div>
+            <label for="telefono" class="block text-sm font-bold text-blue-700 mb-2">
+                Teléfono *
+            </label>
+            <input type="text" 
+                   id="telefono" 
+                   name="telefono" 
+                   class="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-blue-200 rounded-lg sm:rounded-xl"
+                   placeholder="76543210"
+                   value="{{ old('telefono') }}">
+            @error('telefono')
+                <div class="mt-2 text-sm text-red-600 flex items-center">
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    {{ $message }}
+                </div>
+            @enderror
+        </div>
+        
+        <div>
+            <label for="sueldo" class="block text-sm font-bold text-blue-700 mb-2">
+                Sueldo *
+            </label>
+            <input type="number" 
+                   step="0.01" 
+                   id="sueldo" 
+                   name="sueldo" 
+                   class="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-blue-200 rounded-lg sm:rounded-xl"
+                   placeholder="7000"
+                   value="{{ old('sueldo') }}">
+            @error('sueldo')
+                <div class="mt-2 text-sm text-red-600 flex items-center">
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    {{ $message }}
+                </div>
+            @enderror
+        </div>
+        
+        <div>
+            <label for="fecha_contrato" class="block text-sm font-bold text-blue-700 mb-2">
+                Fecha Contrato *
+            </label>
+            <input type="date" 
+                   id="fecha_contrato" 
+                   name="fecha_contrato" 
+                   class="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-blue-200 rounded-lg sm:rounded-xl"
+                   value="{{ old('fecha_contrato') }}">
+            @error('fecha_contrato')
+                <div class="mt-2 text-sm text-red-600 flex items-center">
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    {{ $message }}
+                </div>
+            @enderror
+        </div>
+        
+        <div class="md:col-span-2">
+            <label for="fecha_final" class="block text-sm font-bold text-blue-700 mb-2">
+                Fecha Final *
+            </label>
+            <input type="date" 
+                   id="fecha_final" 
+                   name="fecha_final" 
+                   class="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-blue-200 rounded-lg sm:rounded-xl"
+                   value="{{ old('fecha_final') }}">
+            @error('fecha_final')
+                <div class="mt-2 text-sm text-red-600 flex items-center">
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    {{ $message }}
+                </div>
+            @enderror
+        </div>
+    </div>
+</div>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const roleCheckboxes = document.querySelectorAll('input[name="roles[]"]');
+    const docenteFields = document.getElementById('docente-fields');
+    
+    function toggleDocenteFields() {
+        const hasDocenteRole = Array.from(roleCheckboxes).some(checkbox => 
+            checkbox.checked && checkbox.value === '{{ $roles->firstWhere('name', 'docente')?->id }}'
+        );
+        
+        if (hasDocenteRole) {
+            docenteFields.classList.remove('hidden');
+            // Hacer requeridos los campos de docente
+            docenteFields.querySelectorAll('input').forEach(input => {
+                input.required = true;
+            });
+        } else {
+            docenteFields.classList.add('hidden');
+            // Quitar requerido
+            docenteFields.querySelectorAll('input').forEach(input => {
+                input.required = false;
+            });
+        }
+    }
+    
+    roleCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', toggleDocenteFields);
+    });
+    
+    // Ejecutar al cargar la página
+    toggleDocenteFields();
+});
+</script>
                         <!-- Botones de acción -->
                         <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 sm:pt-6 border-t border-deep-teal-100">
                             <button type="submit" 

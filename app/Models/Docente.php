@@ -50,12 +50,6 @@ class Docente extends Model
         return $this->hasMany(Asistencia::class, 'codigo_docente', 'codigo');
     }
 
-    // CORREGIR: Esta relación no funciona sin tabla intermedia
-    // public function materias()
-    // {
-    //     return $this->hasManyThrough(Materia::class, DocenteCarrera::class, 'docente_codigo', 'carrera_id', 'codigo', 'carrera_id');
-    // }
-
     // NUEVA: Relación con GrupoMateriaHorario
     public function grupoMateriaHorarios()
     {
