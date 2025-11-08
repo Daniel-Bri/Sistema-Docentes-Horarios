@@ -7,6 +7,7 @@ use App\Http\Controllers\RolController;
 use App\Http\Controllers\DocenteController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\MateriaController;
+use App\Http\Controllers\Administracion\CargaMasivaUsuariosController;
 
 // Panel administrativo (solo usuarios con rol “admin”)
 Route::prefix('admin')
@@ -50,7 +51,26 @@ Route::prefix('admin')
             Route::get('/get-horarios', [MateriaController::class, 'getHorarios'])->name('get-horarios');
             Route::get('/get-aulas', [MateriaController::class, 'getAulas'])->name('get-aulas');
         });
-        
+
+        // =========================================================================
+        // ✅ CU18 - CARGA MASIVA DE USUARIOS DESDE EXCEL/CSV
+        // =========================================================================
+            Route::prefix('carga-masiva')->name('carga-masiva.')->group(function () {
+                Route::prefix('usuarios')->name('usuarios.')->group(function () {
+                    // Vista principal de carga
+                    Route::get('/', [CargaMasivaUsuariosController::class, 'index'])->name('index');
+                    
+                    // Previsualización del archivo
+                    Route::post('/preview', [CargaMasivaUsuariosController::class, 'preview'])->name('preview');
+                    
+                    // Procesar importación definitiva
+                    Route::post('/procesar', [CargaMasivaUsuariosController::class, 'procesar'])->name('procesar');
+                    
+                    // Descargar plantilla
+                    Route::get('/plantilla', [CargaMasivaUsuariosController::class, 'descargarPlantilla'])->name('plantilla');
+                });
+            });
+
         // Bitácora de auditoría
         Route::get('/bitacora', [BitacoraController::class, 'index'])->name('bitacora.index');
         Route::get('/bitacora/{id}', [BitacoraController::class, 'show'])->name('bitacora.show');

@@ -148,10 +148,15 @@
                                 <i class="fas fa-user-shield mr-2 w-4 h-4"></i>
                                 Roles y Permisos
                             </a>
-                        <a href="{{ route('admin.bitacora.index') }}" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
-                            <i class="fas fa-clipboard-list mr-2 w-4 h-4"></i>
-                            Bitácora del Sistema
-                        </a>
+                            <a href="{{ route('admin.carga-masiva.usuarios.index') }}" 
+                            class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
+                                <i class="fas fa-user-shield mr-2 w-4 h-4"></i>
+                                Carga Masiva de Usuarios
+                            </a>
+                            <a href="{{ route('admin.bitacora.index') }}" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
+                                <i class="fas fa-clipboard-list mr-2 w-4 h-4"></i>
+                                Bitácora del Sistema
+                            </a>
                     </div>
                 </div>
 
@@ -232,7 +237,7 @@
                              <i class="fas fa-chalkboard-teacher mr-2 w-4 h-4"></i>
                             Asignacion manual
                         </a>
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate">
+                        <a href="{{route('coordinador.asignacion-automatica.index')}}" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate">
                             <i class="fas fa-book mr-2 w-4 h-4"></i>
                             Asignacion automatica
                         </a>
@@ -274,9 +279,9 @@
                         <i class="fas fa-chevron-down text-xs transition-transform"></i>
                     </button>
                     <div class="submenu ml-6">
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate">
+                        <a href="{{route('coordinador.reportes.aulas.disponibles')}}" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate">
                             <i class="fas fa-calendar-alt mr-2 w-4 h-4"></i>
-                            Reportes
+                            Aulas Disponibles
                         </a>
                     </div>
                 </div>

@@ -97,7 +97,7 @@
                     Información del Horario Base
                 </h2>
 
-                <form action="{{ route('coordinador.horarios.store-base') }}" method="POST">
+                <form action="{{ route('coordinador.horarios.store') }}" method="POST">
                     @csrf
 
                     <div class="space-y-6">
