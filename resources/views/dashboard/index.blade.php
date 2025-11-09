@@ -138,43 +138,37 @@
                     <span class="truncate">Dashboard</span>
                 </a>
 
-                <!-- Paquete: Administración (SOLO para admin y coordinador) -->
-                @auth
-                    @if(auth()->user()->hasRole('admin') || auth()->user()->hasRole('coordinador'))
-                    <div class="package-group">
-                        <button class="nav-item flex items-center justify-between w-full px-4 py-3 text-gray-300 hover:text-white package-toggle">
-                            <div class="flex items-center flex-1">
-                                <i class="fas fa-cog mr-3 w-5 h-5"></i>
-                                <span class="truncate">Administración</span>
-                            </div>
-                            <i class="fas fa-chevron-down text-xs transition-transform"></i>
-                        </button>
-                        <div class="submenu ml-6">
-                            @if(auth()->user()->hasRole('admin'))
-                            <a href="{{ route('admin.users.index') }}" 
-                            class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
-                                <i class="fas fa-users mr-2 w-4 h-4"></i>
-                                Gestión de Usuarios
-                            </a>
-                            <a href="{{ route('admin.roles.index') }}" 
-                            class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
-                                <i class="fas fa-user-shield mr-2 w-4 h-4"></i>
-                                Roles y Permisos
-                            </a>
-                            <a href="{{ route('admin.carga-masiva.usuarios.index') }}" 
-                            class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
-                                <i class="fas fa-upload mr-2 w-4 h-4"></i>
-                                Carga Masiva
-                            </a>
-                            @endif
-                            <a href="{{ route('admin.bitacora.index') }}" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
-                                <i class="fas fa-clipboard-list mr-2 w-4 h-4"></i>
-                                Bitácora del Sistema
-                            </a>
+                <!-- Paquete: Administración -->
+                <div class="package-group">
+                    <button class="nav-item flex items-center justify-between w-full px-4 py-3 text-gray-300 hover:text-white package-toggle">
+                        <div class="flex items-center flex-1">
+                            <i class="fas fa-cog mr-3 w-5 h-5"></i>
+                            <span class="truncate">Administración</span>
                         </div>
+                        <i class="fas fa-chevron-down text-xs transition-transform"></i>
+                    </button>
+                    <div class="submenu ml-6">
+                        <a href="{{ route('admin.users.index') }}" 
+                        class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
+                            <i class="fas fa-users mr-2 w-4 h-4"></i>
+                            Gestión de Usuarios
+                        </a>
+                        <a href="{{ route('admin.roles.index') }}" 
+                        class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
+                            <i class="fas fa-user-shield mr-2 w-4 h-4"></i>
+                            Roles y Permisos
+                        </a>
+                        <a href="{{ route('admin.carga-masiva.usuarios.index') }}" 
+                        class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
+                            <i class="fas fa-upload mr-2 w-4 h-4"></i>
+                            Carga Masiva de Usuarios
+                        </a>
+                        <a href="{{ route('admin.bitacora.index') }}" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
+                            <i class="fas fa-clipboard-list mr-2 w-4 h-4"></i>
+                            Bitácora del Sistema
+                        </a>
                     </div>
-                    @endif
-                @endauth
+                </div>
 
                 <!-- Paquete: Gestión Académica -->
                 <div class="package-group">
@@ -187,144 +181,130 @@
                     </button>
                     <div class="submenu ml-6">
                         <!-- Submenú Docentes -->
-                        @auth
-                            @if(auth()->user()->hasRole('admin') || auth()->user()->hasRole('coordinador'))
-                            <div class="submenu-item">
-                                <button class="flex items-center justify-between w-full px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate docentes-toggle">
-                                    <div class="flex items-center">
-                                        <i class="fas fa-chalkboard-teacher mr-2 w-4 h-4"></i>
-                                        Docentes
-                                    </div>
-                                    <i class="fas fa-chevron-right text-xs transition-transform"></i>
-                                </button>
-                                <div class="sub-submenu ml-4">
-                                    <a href="{{ route('docentes.index') }}" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
-                                        <i class="fas fa-list mr-2 w-4 h-4"></i>
-                                        Lista de Docentes
-                                    </a>
-                                    @if(auth()->user()->hasRole('admin'))
-                                    <a href="{{ route('docentes.create') }}" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
-                                        <i class="fas fa-user-plus mr-2 w-4 h-4"></i>
-                                        Registrar Docente
-                                    </a>
-                                    @endif
+                        <div class="submenu-item">
+                            <button class="flex items-center justify-between w-full px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate docentes-toggle">
+                                <div class="flex items-center">
+                                    <i class="fas fa-chalkboard-teacher mr-2 w-4 h-4"></i>
+                                    Docentes
                                 </div>
+                                <i class="fas fa-chevron-right text-xs transition-transform"></i>
+                            </button>
+                            <div class="sub-submenu ml-4">
+                                <a href="{{ route('docentes.index') }}" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
+                                    <i class="fas fa-list mr-2 w-4 h-4"></i>
+                                    Lista de Docentes
+                                </a>
+                                <a href="{{ route('docentes.create') }}" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
+                                    <i class="fas fa-user-plus mr-2 w-4 h-4"></i>
+                                    Registrar Docente
+                                </a>
                             </div>
-                            @endif
-                        @endauth
+                        </div>
                         
                         <!-- Grupos -->
-                        @auth
-                            @if(auth()->user()->hasRole('admin') || auth()->user()->hasRole('coordinador'))
-                            <a href="{{ route('admin.grupos.index') }}" 
-                               class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
-                                <i class="fas fa-users mr-2 w-4 h-4"></i>
-                                Grupos
-                            </a>
-                            @endif
-                        @endauth
+                        <a href="{{ route('admin.grupos.index') }}" 
+                        class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
+                            <i class="fas fa-users mr-2 w-4 h-4"></i>
+                            Grupos
+                        </a>
                         
                         <!-- Materias -->
                         @auth
                         @if(auth()->user()->hasRole('admin'))
                             <a href="{{ route('admin.materias.index') }}" 
-                               class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
+                            class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
                                 <i class="fas fa-book mr-2 w-4 h-4"></i>
                                 Materias
                             </a>
                         @elseif(auth()->user()->hasRole('coordinador'))
                             <a href="{{ route('coordinador.materias.index') }}" 
-                               class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
+                            class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
                                 <i class="fas fa-book mr-2 w-4 h-4"></i>
                                 Materias
                             </a>
-                        @elseif(auth()->user()->hasRole('docente'))
-                            <a href="{{ route('docente.materias.index') }}" 
-                               class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
+                        @else
+                            <a href="#" 
+                            class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
                                 <i class="fas fa-book mr-2 w-4 h-4"></i>
-                                Mis Materias
+                                Materias
                             </a>
                         @endif
                         @endauth
 
-                        <!-- Aulas (solo admin y coordinador) -->
-                        @auth
-                            @if(auth()->user()->hasRole('admin') || auth()->user()->hasRole('coordinador'))
-                            <a href="{{ route('admin.aulas.index') }}" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
-                                <i class="fas fa-door-open mr-2 w-4 h-4"></i>
-                                Aulas
-                            </a>
-                            @endif
-                        @endauth
+                        <!-- Aulas -->
+                        <a href="{{ route('admin.aulas.index') }}" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
+                            <i class="fas fa-door-open mr-2 w-4 h-4"></i>
+                            Aulas
+                        </a>
                     </div>
                 </div>
 
-                <!-- Paquete: Horarios -->
+                <!-- Paquete: Gestión Horarios -->
                 <div class="package-group">
                     <button class="nav-item flex items-center justify-between w-full px-4 py-3 text-gray-300 hover:text-white package-toggle">
                         <div class="flex items-center flex-1">
-                            <i class="fas fa-clock mr-3 w-5 h-5"></i>
-                            <span class="truncate">Horarios</span>
+                            <i class="fas fa-calendar-alt mr-3 w-5 h-5"></i>
+                            <span class="truncate">Gestión Horarios</span>
                         </div>
                         <i class="fas fa-chevron-down text-xs transition-transform"></i>
                     </button>
                     <div class="submenu ml-6">
-                        @auth
-                            @if(auth()->user()->hasRole('admin') || auth()->user()->hasRole('coordinador'))
-                            <a href="{{ route('coordinador.horarios.index') }}" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
-                                <i class="fas fa-calendar-alt mr-2 w-4 h-4"></i>
-                                Asignar Horarios
-                            </a>
-                            <a href="{{ route('coordinador.asignacion-automatica.index') }}" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
-                                <i class="fas fa-robot mr-2 w-4 h-4"></i>
-                                Asignación Automática
-                            </a>
-                            <a href="{{ route('coordinador.reportes.aulas.disponibles') }}" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
-                                <i class="fas fa-chart-bar mr-2 w-4 h-4"></i>
-                                Reportes de Aulas
-                            </a>
-                            @elseif(auth()->user()->hasRole('docente'))
-                            <a href="{{ route('docente.horarios.index') }}" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
-                                <i class="fas fa-calendar-alt mr-2 w-4 h-4"></i>
-                                Mi Horario
-                            </a>
-                            <a href="{{ route('docente.mi-horario') }}" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
-                                <i class="fas fa-table mr-2 w-4 h-4"></i>
-                                Vista Semanal
-                            </a>
-                            @endif
-                        @endauth
+                        <a href="{{ route('coordinador.horarios.index') }}" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">                        
+                            <i class="fas fa-chalkboard-teacher mr-2 w-4 h-4"></i>
+                            Asignación Manual
+                        </a>
+                        <a href="{{ route('coordinador.asignacion-automatica.index') }}" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
+                            <i class="fas fa-robot mr-2 w-4 h-4"></i>
+                            Asignación Automática
+                        </a>
+                        <a href="{{ route('visualizacion-semana.index') }}" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
+                            <i class="fas fa-table mr-2 w-4 h-4"></i>
+                            Visualización Semanal
+                        </a>
                     </div>
                 </div>
 
-                <!-- Paquete: Asistencia (solo para docentes) -->
-                @auth
-                    @if(auth()->user()->hasRole('docente'))
-                    <div class="package-group">
-                        <button class="nav-item flex items-center justify-between w-full px-4 py-3 text-gray-300 hover:text-white package-toggle">
-                            <div class="flex items-center flex-1">
-                                <i class="fas fa-clipboard-check mr-3 w-5 h-5"></i>
-                                <span class="truncate">Asistencia</span>
-                            </div>
-                            <i class="fas fa-chevron-down text-xs transition-transform"></i>
-                        </button>
-                        <div class="submenu ml-6">
-                            <a href="{{ route('docente.asistencia.index') }}" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
-                                <i class="fas fa-edit mr-2 w-4 h-4"></i>
-                                Registro Digital
-                            </a>
-                            <a href="{{ route('docente.asistencia.qr') }}" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
-                                <i class="fas fa-qrcode mr-2 w-4 h-4"></i>
-                                Código QR
-                            </a>
-                            <a href="{{ route('docente.asistencia.historial') }}" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
-                                <i class="fas fa-history mr-2 w-4 h-4"></i>
-                                Historial
-                            </a>
+                <!-- Paquete: Asistencia -->
+                <div class="package-group">
+                    <button class="nav-item flex items-center justify-between w-full px-4 py-3 text-gray-300 hover:text-white package-toggle">
+                        <div class="flex items-center flex-1">
+                            <i class="fas fa-user-check mr-3 w-5 h-5"></i>
+                            <span class="truncate">Asistencia</span>
                         </div>
+                        <i class="fas fa-chevron-down text-xs transition-transform"></i>
+                    </button>
+                    <div class="submenu ml-6">
+                        <a href="{{ route('docente.asistencia.index') }}" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
+                            <i class="fas fa-edit mr-2 w-4 h-4"></i>
+                            Registro Digital
+                        </a>
+                        <a href="{{ route('docente.asistencia.qr') }}" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
+                            <i class="fas fa-qrcode mr-2 w-4 h-4"></i>
+                            Código QR
+                        </a>
+                        <a href="{{ route('docente.asistencia.historial') }}" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
+                            <i class="fas fa-history mr-2 w-4 h-4"></i>
+                            Historial
+                        </a>
                     </div>
-                    @endif
-                @endauth
+                </div>
+
+                <!-- Paquete: Análisis y Reportes -->
+                <div class="package-group">
+                    <button class="nav-item flex items-center justify-between w-full px-4 py-3 text-gray-300 hover:text-white package-toggle">
+                        <div class="flex items-center flex-1">
+                            <i class="fas fa-chart-bar mr-3 w-5 h-5"></i>
+                            <span class="truncate">Análisis y Reportes</span>
+                        </div>
+                        <i class="fas fa-chevron-down text-xs transition-transform"></i>
+                    </button>
+                    <div class="submenu ml-6">
+                        <a href="{{ route('coordinador.reportes.aulas.disponibles') }}" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
+                            <i class="fas fa-door-open mr-2 w-4 h-4"></i>
+                            Aulas Disponibles
+                        </a>
+                    </div>
+                </div>
 
                 <!-- Perfil y Cuenta -->
                 <div class="package-group">
@@ -336,21 +316,6 @@
                         <i class="fas fa-chevron-down text-xs transition-transform"></i>
                     </button>
                     <div class="submenu ml-6">
-                        <!-- Perfil según el rol del usuario -->
-                        @auth
-                            @if(auth()->user()->hasRole('docente'))
-                                <a href="{{ route('docente.perfil') }}" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
-                                    <i class="fas fa-user-edit mr-2 w-4 h-4"></i>
-                                    Mi Perfil
-                                </a>
-                            @else
-                                <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
-                                    <i class="fas fa-user-edit mr-2 w-4 h-4"></i>
-                                    Mi Perfil
-                                </a>
-                            @endif
-                        @endauth
-                        
                         <a href="{{ route('password.change') }}" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
                             <i class="fas fa-lock mr-2 w-4 h-4"></i>
                             Cambiar Contraseña
@@ -552,86 +517,14 @@
                             <i class="fas fa-clipboard-check text-2xl mb-2"></i>
                             <p class="font-semibold">Registrar Asistencia</p>
                         </a>
-                        <a href="{{ route('docente.perfil') }}" class="bg-cream hover:bg-light-teal hover:text-white text-deep-teal rounded-lg p-4 text-center transition-colors">
-                            <i class="fas fa-user text-2xl mb-2"></i>
-                            <p class="font-semibold">Mi Perfil</p>
+                        <a href="{{ route('password.change') }}" class="bg-cream hover:bg-light-teal hover:text-white text-deep-teal rounded-lg p-4 text-center transition-colors">
+                            <i class="fas fa-lock text-2xl mb-2"></i>
+                            <p class="font-semibold">Cambiar Contraseña</p>
                         </a>
                         @endif
                     @endauth
                 </div>
             </div>
-
-            <!-- Información adicional según el rol -->
-            @auth
-                @if(auth()->user()->hasRole('docente'))
-                <!-- Panel del Docente -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                    <!-- Próximas Clases -->
-                    <div class="bg-white rounded-xl p-6 shadow-lg">
-                        <h3 class="text-lg font-bold text-deep-teal mb-4 flex items-center">
-                            <i class="fas fa-clock mr-2"></i>
-                            Próximas Clases Hoy
-                        </h3>
-                        <div class="space-y-3">
-                            @php
-                                $hoy = \Carbon\Carbon::now()->format('Y-m-d');
-                                $hora_actual = \Carbon\Carbon::now()->format('H:i:s');
-                            @endphp
-                            @if(class_exists('App\Models\GrupoMateriaHorario'))
-                                @php
-                                    $proximas_clases = \App\Models\GrupoMateriaHorario::with(['grupoMateria.materia', 'horario', 'aula'])
-                                        ->whereHas('horario', function($query) use ($hoy, $hora_actual) {
-                                            $query->where('dia', strtoupper(\Carbon\Carbon::now()->isoFormat('ddd')))
-                                                  ->where('hora_inicio', '>=', $hora_actual);
-                                        })
-                                        ->where('id_docente', auth()->user()->docente->codigo ?? null)
-                                        ->orderBy('hora_inicio')
-                                        ->take(3)
-                                        ->get();
-                                @endphp
-                                @forelse($proximas_clases as $clase)
-                                <div class="flex items-center justify-between p-3 bg-cream rounded-lg">
-                                    <div>
-                                        <p class="font-semibold text-deep-teal">{{ $clase->grupoMateria->materia->nombre ?? 'Materia' }}</p>
-                                        <p class="text-sm text-dark-teal">{{ $clase->horario->hora_inicio ?? '' }} - {{ $clase->aula->nombre ?? 'Aula' }}</p>
-                                    </div>
-                                    <span class="bg-light-teal text-white px-2 py-1 rounded text-xs">
-                                        {{ $clase->horario->hora_inicio ?? '' }}
-                                    </span>
-                                </div>
-                                @empty
-                                <p class="text-gray-500 text-center py-4">No hay clases programadas para hoy</p>
-                                @endforelse
-                            @else
-                                <p class="text-gray-500 text-center py-4">Sistema de horarios no disponible</p>
-                            @endif
-                        </div>
-                    </div>
-
-                    <!-- Resumen de Asistencia -->
-                    <div class="bg-white rounded-xl p-6 shadow-lg">
-                        <h3 class="text-lg font-bold text-deep-teal mb-4 flex items-center">
-                            <i class="fas fa-chart-bar mr-2"></i>
-                            Resumen de Asistencia
-                        </h3>
-                        <div class="space-y-4">
-                            <div class="flex justify-between items-center">
-                                <span class="text-dark-teal">Asistencias este mes:</span>
-                                <span class="font-bold text-deep-teal">12</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-dark-teal">Clases impartidas:</span>
-                                <span class="font-bold text-deep-teal">15</span>
-                            </div>
-                            <div class="w-full bg-gray-200 rounded-full h-2">
-                                <div class="bg-green-500 h-2 rounded-full" style="width: 80%"></div>
-                            </div>
-                            <p class="text-sm text-dark-teal text-center">80% de asistencia registrada</p>
-                        </div>
-                    </div>
-                </div>
-                @endif
-            @endauth
 
             <!-- Sistema Status -->
             <div class="bg-white rounded-xl p-6 shadow-lg">
