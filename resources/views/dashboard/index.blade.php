@@ -278,14 +278,6 @@
                             <i class="fas fa-edit mr-2 w-4 h-4"></i>
                             Registro Digital
                         </a>
-                        <a href="{{ route('docente.asistencia.qr') }}" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
-                            <i class="fas fa-qrcode mr-2 w-4 h-4"></i>
-                            Código QR
-                        </a>
-                        <a href="{{ route('docente.asistencia.historial') }}" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
-                            <i class="fas fa-history mr-2 w-4 h-4"></i>
-                            Historial
-                        </a>
                     </div>
                 </div>
 
