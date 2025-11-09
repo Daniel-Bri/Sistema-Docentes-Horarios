@@ -51,36 +51,67 @@ class MateriaController extends Controller
         }
     }
 
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        $user = Auth::user();
+/**
+ * Display a listing of the resource.
+ */
+public function index()
+{
+    $user = Auth::user();
+    
+    if ($user->hasRole('admin')) {
+        $materias = Materia::with([
+            'categoria:id,nombre',
+            'grupoMaterias.grupo'
+        ])->orderBy('sigla')->paginate(10);
         
-        if ($user->hasRole('admin')) {
-            $materias = Materia::with([
-                'categoria:id,nombre',
-                'grupoMaterias.grupo'
-            ])->orderBy('sigla')->paginate(10);
-            
-        } elseif ($user->hasRole('coordinador')) {
-            // Coordinador ve todas las materias (sin filtro por carrera)
-            $materias = Materia::with([
-                'categoria:id,nombre',
-                'grupoMaterias.grupo'
-            ])->orderBy('sigla')->paginate(10);
+    } elseif ($user->hasRole('coordinador')) {
+        // Coordinador ve todas las materias (sin filtro por carrera)
+        $materias = Materia::with([
+            'categoria:id,nombre',
+            'grupoMaterias.grupo'
+        ])->orderBy('sigla')->paginate(10);
+    } else {
+        // PARA DOCENTE - CORREGIDO: usar id_docente
+        $docente = $user->docente;
+        
+        if (!$docente) {
+            $materias = collect();
+            \Log::warning('Usuario no tiene perfil de docente', ['user_id' => $user->id]);
         } else {
-            $materias = $this->getMateriasForDocente($user);
-        }
-        
-        // Registrar en bitácora - SEGURO
-        $this->registrarBitacoraSegura('Consulta', 'Materia', null, $user->id, 'Consultó listado de materias');
-        
-        $view = $this->getViewPath('index');
-        return view($view, compact('materias'));
-    }
+            // CORREGIDO: Usar id_docente en lugar de codigo_docente
+            $materias = Materia::with([
+                'categoria:id,nombre',
+                'grupoMaterias.grupo',
+                'grupoMaterias.horarios.horario',
+                'grupoMaterias.horarios.aula'
+            ])
+            ->whereHas('grupoMaterias.horarios', function($query) use ($docente) {
+                $query->where('id_docente', $docente->codigo); // CORREGIDO AQUÍ
+            })
+            ->orderBy('sigla')
+            ->get();
 
+            // Debug
+            \Log::info('Materias asignadas al docente', [
+                'docente_codigo' => $docente->codigo,
+                'materias_count' => $materias->count(),
+                'materias_siglas' => $materias->pluck('sigla')->toArray()
+            ]);
+        }
+    }
+    
+    // Registrar en bitácora - SEGURO
+    $this->registrarBitacoraSegura('Consulta', 'Materia', null, $user->id, 'Consultó listado de materias');
+    
+    $view = $this->getViewPath('index');
+    
+    // Para docente, pasar el docente también a la vista
+    if ($user->hasRole('docente')) {
+        return view($view, compact('materias', 'docente'));
+    }
+    
+    return view($view, compact('materias'));
+}
     /**
      * Show the form for creating a new resource.
      */
@@ -532,29 +563,29 @@ public function storeAsignarAulas(Request $request, $sigla)
         return implode(', ', $cambios);
     }
 
-    /**
-     * Obtener materias para docente
-     */
-    private function getMateriasForDocente($user)
-    {
-        $docente = $user->docente;
-        
-        if (!$docente) {
-            return collect();
-        }
-
-        try {
-            // Obtener materias donde el docente tiene horarios asignados
-            return Materia::whereHas('grupoMaterias.horarios', function($query) use ($docente) {
-                $query->where('codigo_docente', $docente->codigo);
-            })
-            ->with(['categoria:id,nombre'])
-            ->orderBy('sigla')
-            ->get();
-
-        } catch (\Exception $e) {
-            \Log::error('Error en getMateriasForDocente: ' . $e->getMessage());
-            return collect();
-        }
+/**
+ * Obtener materias para docente
+ */
+private function getMateriasForDocente($user)
+{
+    $docente = $user->docente;
+    
+    if (!$docente) {
+        return collect();
     }
+
+    try {
+        // CORREGIDO: Usar id_docente
+        return Materia::whereHas('grupoMaterias.horarios', function($query) use ($docente) {
+            $query->where('id_docente', $docente->codigo); // CORREGIDO AQUÍ
+        })
+        ->with(['categoria:id,nombre'])
+        ->orderBy('sigla')
+        ->get();
+
+    } catch (\Exception $e) {
+        \Log::error('Error en getMateriasForDocente: ' . $e->getMessage());
+        return collect();
+    }
+}
 }

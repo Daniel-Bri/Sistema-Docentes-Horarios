@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GestionAcademica\MateriaController;
 use App\Http\Controllers\Administracion\UserController;
+use App\Http\Controllers\GestionDeHorarios\HorariosController;
+use App\Http\Controllers\GestionAcademica\GrupoController;
 
 Route::prefix('coordinador')
     ->middleware(['auth', 'role:coordinador'])
@@ -11,6 +13,26 @@ Route::prefix('coordinador')
         Route::get('/dashboard', function () {
             return view('coordinador.dashboard');
         })->name('dashboard');
+        // =========================================================================
+        // GESTIÓN DE GRUPOS - COORDINADOR (NUEVAS RUTAS)
+        // =========================================================================
+        Route::prefix('grupos')->name('grupos.')->group(function () {
+            // CRUD Básico (sin eliminar)
+            Route::get('/', [GrupoController::class, 'index'])->name('index');
+            Route::get('/crear', [GrupoController::class, 'create'])->name('create');
+            Route::post('/', [GrupoController::class, 'store'])->name('store');
+            Route::get('/{id}', [GrupoController::class, 'show'])->name('show');
+            Route::get('/{id}/editar', [GrupoController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [GrupoController::class, 'update'])->name('update');
+            
+            // Asignación de materias
+            Route::get('/{id}/asignar-materias', [GrupoController::class, 'asignarMaterias'])->name('asignar-materias');
+            Route::post('/{id}/asignar-materias', [GrupoController::class, 'storeAsignarMaterias'])->name('store-asignar-materias');
+            Route::delete('/{idGrupo}/materia/{siglaMateria}', [GrupoController::class, 'removerMateria'])->name('remover-materia');
+            
+            // Exportación
+            Route::get('/exportar/excel', [GrupoController::class, 'export'])->name('export');
+        });
         // =========================================================================
         // GESTIÓN DE USUARIOS - COORDINADOR (CON CONTROLADOR EXISTENTE)
             Route::prefix('users')->name('users.')->group(function () {

@@ -80,6 +80,16 @@
             max-height: 500px;
         }
         
+        .sub-submenu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .sub-submenu.open {
+            max-height: 200px;
+        }
+        
         .rotate-90 {
             transform: rotate(90deg);
         }
@@ -195,6 +205,17 @@
                                     @endif
                                 </div>
                             </div>
+                            @endif
+                        @endauth
+                        
+                        <!-- Grupos - AGREGADO -->
+                        @auth
+                            @if(auth()->user()->hasRole('admin') || auth()->user()->hasRole('coordinador'))
+                            <a href="{{ route('admin.grupos.index') }}" 
+                               class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-light-teal hover:bg-opacity-20 rounded truncate flex items-center">
+                                <i class="fas fa-users mr-2 w-4 h-4"></i>
+                                Grupos
+                            </a>
                             @endif
                         @endauth
                         
@@ -457,21 +478,21 @@
                     </div>
                 </div>
 
-                <!-- Tarjeta 4 -->
+                <!-- Tarjeta 4 - Grupos -->
                 <div class="stat-card bg-white rounded-xl p-4 shadow-lg border-l-4 border-purple-500">
                     <div class="flex items-center">
                         <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
-                            <i class="fas fa-chalkboard-teacher text-purple-600 text-xl"></i>
+                            <i class="fas fa-users text-purple-600 text-xl"></i>
                         </div>
                         <div>
                             <p class="text-2xl font-bold text-deep-teal">
-                                @if(class_exists('App\Models\Docente'))
-                                    {{ \App\Models\Docente::count() }}
+                                @if(class_exists('App\Models\Grupo'))
+                                    {{ \App\Models\Grupo::count() }}
                                 @else
-                                    25
+                                    18
                                 @endif
                             </p>
-                            <p class="text-sm text-dark-teal">Docentes</p>
+                            <p class="text-sm text-dark-teal">Grupos Activos</p>
                         </div>
                     </div>
                 </div>
@@ -483,6 +504,11 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     @auth
                         @if(auth()->user()->hasRole('admin') || auth()->user()->hasRole('coordinador'))
+                        <!-- Acción para Grupos -->
+                        <a href="{{ route('admin.grupos.index') }}" class="bg-cream hover:bg-light-teal hover:text-white text-deep-teal rounded-lg p-4 text-center transition-colors">
+                            <i class="fas fa-users text-2xl mb-2"></i>
+                            <p class="font-semibold">Gestionar Grupos</p>
+                        </a>
                         <a href="{{ route('admin.aulas.index') }}" class="bg-cream hover:bg-light-teal hover:text-white text-deep-teal rounded-lg p-4 text-center transition-colors">
                             <i class="fas fa-door-open text-2xl mb-2"></i>
                             <p class="font-semibold">Gestionar Aulas</p>

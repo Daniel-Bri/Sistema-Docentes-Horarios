@@ -8,6 +8,7 @@ use App\Http\Controllers\Administracion\UserController;
 use App\Http\Controllers\GestionAcademica\DocenteController;
 use App\Http\Controllers\GestionAcademica\MateriaController;
 use App\Http\Controllers\GestionDeHorarios\HorariosController;
+use App\Http\Controllers\GestionAcademica\GrupoController;
 
 // Panel administrativo (solo usuarios con rol “admin”)
 Route::prefix('admin')
@@ -15,6 +16,26 @@ Route::prefix('admin')
     ->as('admin.')
     ->group(function () {
 
+        
+        // ✅ RUTAS DE GRUPOS PARA ADMIN (NUEVAS)
+        Route::prefix('grupos')->name('grupos.')->group(function () {
+            // Rutas CRUD básicas
+            Route::get('/', [GrupoController::class, 'index'])->name('index');
+            Route::get('/crear', [GrupoController::class, 'create'])->name('create');
+            Route::post('/', [GrupoController::class, 'store'])->name('store');
+            Route::get('/{id}', [GrupoController::class, 'show'])->name('show');
+            Route::get('/{id}/editar', [GrupoController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [GrupoController::class, 'update'])->name('update');
+            Route::delete('/{id}', [GrupoController::class, 'destroy'])->name('destroy');
+            
+            // Asignación de materias
+            Route::get('/{id}/asignar-materias', [GrupoController::class, 'asignarMaterias'])->name('asignar-materias');
+            Route::post('/{id}/asignar-materias', [GrupoController::class, 'storeAsignarMaterias'])->name('store-asignar-materias');
+            Route::delete('/{idGrupo}/materia/{siglaMateria}', [GrupoController::class, 'removerMateria'])->name('remover-materia');
+            
+            // Exportación
+            Route::get('/exportar/excel', [GrupoController::class, 'export'])->name('export');
+        });
         // ✅ RUTAS DE AULAS PARA ADMIN (CORREGIDAS)
         Route::prefix('aulas')->name('aulas.')->group(function () {
             Route::get('/', [AulaController::class, 'index'])->name('index');
