@@ -223,11 +223,11 @@ class AsistenciaController extends Controller
             // Registrar asistencia
             $this->registrarAsistenciaDirecta($clase);
             
-            return response()->json([
-                'success' => true,
-                'message' => '✅ Asistencia registrada correctamente',
-                'clase' => $clase->grupoMateria->materia->nombre,
-                'grupo' => $clase->grupoMateria->grupo->nombre
+            return redirect()->route('docente.asistencia.confirmacion', $clase->id)
+            ->with([
+                'success' => 'Asistencia registrada correctamente via código QR',
+                'clase_nombre' => $clase->grupoMateria->materia->nombre,
+                'grupo_nombre' => $clase->grupoMateria->grupo->nombre
             ]);
 
         } catch (\Exception $e) {
@@ -245,7 +245,14 @@ class AsistenciaController extends Controller
     public function confirmacion($id)
     {
         $clase = $this->validarAccesoClase($id);
-        return view('docente.asistencia.confirmacion', compact('clase'));
+        
+        // Obtener la última asistencia de hoy para esta clase
+        $asistencia = Asistencia::where('id_grupo_materia_horario', $clase->id)
+            ->whereDate('fecha', Carbon::today())
+            ->latest()
+            ->first();
+
+        return view('docente.asistencia.confirmacion', compact('clase', 'asistencia'));
     }
 
     /**

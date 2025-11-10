@@ -193,23 +193,34 @@
 
                         <!-- BOTONES DE ACCIÓN -->
                         <div class="flex flex-col sm:flex-row gap-2">
-                            <!-- BOTÓN CÓDIGO TEMPORAL -->
-                            <a href="{{ route('docente.asistencia.codigo', $clase->id) }}"
-                               class="bg-blue-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-600 transition shadow-md flex items-center justify-center gap-2 text-center text-sm">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
-                                </svg>
-                                Código
-                            </a>
+                            @if(!$clase->asistencia_registrada)
+                                <!-- BOTÓN CÓDIGO TEMPORAL - SOLO SI NO HAY ASISTENCIA -->
+                                <a href="{{ route('docente.asistencia.codigo', $clase->id) }}"
+                                class="bg-blue-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-600 transition shadow-md flex items-center justify-center gap-2 text-center text-sm">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+                                    </svg>
+                                    Código
+                                </a>
 
-                            <!-- BOTÓN QR -->
-                            <a href="{{ route('docente.asistencia.qr', $clase->id) }}"
-                               class="bg-green-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-600 transition shadow-md flex items-center justify-center gap-2 text-center text-sm">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
-                                </svg>
-                                QR
-                            </a>
+                                <!-- BOTÓN QR - SOLO SI NO HAY ASISTENCIA -->
+                                <a href="{{ route('docente.asistencia.qr', $clase->id) }}"
+                                class="bg-green-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-600 transition shadow-md flex items-center justify-center gap-2 text-center text-sm">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
+                                    </svg>
+                                    QR
+                                </a>
+                            @else
+                                <!-- BOTÓN VER CONFIRMACIÓN - CUANDO YA HAY ASISTENCIA -->
+                                <a href="{{ route('docente.asistencia.confirmacion', $clase->id) }}"
+                                class="bg-gray-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-600 transition shadow-md flex items-center justify-center gap-2 text-center text-sm">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    Ver Confirmación
+                                </a>
+                            @endif
                         </div>
                     </div>
 

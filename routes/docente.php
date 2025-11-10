@@ -24,18 +24,19 @@ Route::prefix('docente')
                 // CU12 & CU13 - Vista principal
                 Route::get('/', [AsistenciaController::class, 'index'])->name('index');
                 
-                // CU12 - Registro con código temporal
+                // CU13 - QR (RUTAS CORREGIDAS)
+                Route::get('/qr/{id}', [AsistenciaController::class, 'mostrarQR'])->name('qr');
+                Route::get('/qr/{id}/generar', [AsistenciaController::class, 'generarQR'])->name('qr.generar');
+                
+                // ✅ RUTA CORREGIDA: Cambiar completamente la ruta de validación
+                Route::get('/validar-qr-escaneado', [AsistenciaController::class, 'validarQR'])
+                     ->name('qr.validar');
+                
+                // CU12 - Código temporal
                 Route::get('/codigo/{id}', [AsistenciaController::class, 'mostrarCodigo'])->name('codigo');
                 Route::post('/codigo/validar', [AsistenciaController::class, 'validarCodigo'])->name('codigo.validar');
-                Route::post('/codigo/generar', [AsistenciaController::class, 'generarCodigo'])->name('codigo.generar');
                 
-                // CU13 - Registro con QR
-                Route::get('/qr/{id}', [AsistenciaController::class, 'mostrarQR'])->name('qr');
-                Route::post('/qr/validar', [AsistenciaController::class, 'validarQR'])->name('qr.validar');
-                Route::get('/qr/generar/{id}', [AsistenciaController::class, 'generarQR'])->name('qr.generar');
-                
-                // Confirmación común
-                Route::post('/registrar', [AsistenciaController::class, 'registrarAsistencia'])->name('registrar');
+                // Confirmación
                 Route::get('/confirmacion/{id}', [AsistenciaController::class, 'confirmacion'])->name('confirmacion');
                 
                 // Historial
