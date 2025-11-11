@@ -196,6 +196,41 @@ class AsistenciaController extends Controller
             ->header('Content-Type', 'image/svg+xml');
     }
 
+    public function mostrarCodigo($id)
+    {
+        $clase = $this->validarAccesoClase($id);
+        
+        // Verificar si ya tiene asistencia registrada hoy
+        if ($this->tieneAsistenciaRegistrada($clase->id)) {
+            return redirect()->route('docente.asistencia.confirmacion', $clase->id)
+                ->with('info', 'Ya tienes asistencia registrada para esta clase.');
+        }
+
+        // Generar código temporal SOLO con letras mayúsculas
+        $codigo = $this->generarCodigoTemporal($clase->id);
+        
+        return view('docente.asistencia.codigo', compact('clase', 'codigo'));
+    }
+
+    /**
+     * Generar código temporal (SOLO MAYÚSCULAS)
+     */
+    private function generarCodigoTemporal($claseId)
+    {
+        // Usar solo letras mayúsculas para evitar problemas
+        $caracteres = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Eliminé I, O, 0, 1 para evitar confusiones
+        $codigo = '';
+        
+        for ($i = 0; $i < 6; $i++) {
+            $codigo .= $caracteres[rand(0, strlen($caracteres) - 1)];
+        }
+        
+        // Guardar en sesión para validación
+        session(['codigo_temporal_' . $claseId => $codigo]);
+        
+        return $codigo;
+    }
+
     /**
      * CU13 - Validar QR escaneado
      */
@@ -403,5 +438,30 @@ class AsistenciaController extends Controller
         $horaInicio = Carbon::createFromFormat('H:i:s', $clase->horario->hora_inicio);
 
         return $horaActual->diffInMinutes($horaInicio) <= 10 ? 'presente' : 'tardanza';
+    }
+
+    public function validarCodigo(Request $request)
+    {
+        $request->validate([
+            'clase_id' => 'required|exists:grupo_materia_horario,id',
+            'codigo' => 'required|string|size:6',
+            'codigo_confirmacion' => 'required|string|size:6'
+        ]);
+
+        $clase = $this->validarAccesoClase($request->clase_id);
+        
+        // Validación CASE-INSENSITIVE
+        $codigoOriginal = strtoupper($request->codigo);
+        $codigoConfirmacion = strtoupper($request->codigo_confirmacion);
+        
+        \Log::info("Validando código - Original: {$codigoOriginal}, Confirmación: {$codigoConfirmacion}");
+        
+        if ($codigoConfirmacion !== $codigoOriginal) {
+            return redirect()->back()
+                ->with('error', 'El código de confirmación no coincide. Por favor, verifica.')
+                ->withInput();
+        }
+        
+        return $this->registrarAsistencia($clase, 'codigo');
     }
 }
