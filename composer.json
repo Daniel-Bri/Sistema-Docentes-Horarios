@@ -13,6 +13,7 @@
         "laravel/ui": "^4.6",
         "livewire/volt": "*",
         "maatwebsite/excel": "^1.1",
+        "phpoffice/phpspreadsheet": "^5.2",
         "shuchkin/simplexlsxgen": "^1.5",
         "spatie/laravel-permission": "^6.21"
     },

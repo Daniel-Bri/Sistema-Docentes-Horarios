@@ -75,8 +75,10 @@ Route::prefix('admin')
                     Route::post('/procesar', [CargaMasivaUsuariosController::class, 'procesar'])->name('procesar');
                     
                     // Descargar plantilla
-                    Route::get('/plantilla', [CargaMasivaUsuariosController::class, 'descargarPlantilla'])->name('plantilla');
+                   // Route::get('/plantilla', [CargaMasivaUsuariosController::class, 'descargarPlantilla'])->name('plantilla');
+                    Route::get('/plantilla/{formato?}', [CargaMasivaUsuariosController::class, 'descargarPlantilla'])->name('plantilla');
                 });
+
             });
        // });
 

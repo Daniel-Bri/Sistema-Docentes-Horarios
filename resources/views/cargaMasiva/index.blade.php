@@ -69,7 +69,7 @@
                     </div>
                     <div>
                         <h1 class="text-lg sm:text-xl font-semibold text-cream-200">Carga Masiva de Usuarios</h1>
-                        <p class="text-xs text-cream-300">Importación de usuarios desde archivo CSV</p>
+                        <p class="text-xs text-cream-300">Importación de usuarios desde archivo Excel/CSV</p>
                     </div>
                 </div>
 
@@ -142,13 +142,13 @@
                             <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                             </svg>
-                            Archivo CSV
+                            Archivo Excel/CSV
                         </label>
                         
                         <div class="drop-zone border-2 border-dashed border-deep-teal-400 rounded-lg p-8 text-center transition-all duration-300 hover:border-deep-teal-300 hover:bg-deep-teal-600/50"
                              id="dropZone">
                             <input type="file" name="archivo_usuarios" id="archivoInput" 
-                                   class="hidden" accept=".csv,.txt" required>
+                                   class="hidden" accept=".csv,.txt,.xlsx,.xls" required>
                             
                             <div class="space-y-3">
                                 <svg class="w-12 h-12 text-deep-teal-300 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -162,7 +162,7 @@
                                     <p class="text-cream-300 text-sm mt-2">o arrastra y suelta el archivo aquí</p>
                                 </div>
                                 <p class="text-cream-400 text-xs">
-                                    Formatos aceptados: CSV, TXT (Máximo 1MB)
+                                    Formatos aceptados: Excel (.xlsx, .xls), CSV (.csv, .txt) (Máximo 1MB)
                                 </p>
                             </div>
                         </div>
@@ -176,14 +176,24 @@
                     </div>
 
                     <!-- BOTONES DE ACCIÓN -->
-                    <div class="flex flex-col sm:flex-row gap-4 justify-end pt-4 border-t border-deep-teal-400">
-                        <a href="{{ route('admin.carga-masiva.usuarios.plantilla') }}"
-                           class="px-6 py-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition shadow-md flex items-center justify-center gap-2 text-center">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                            </svg>
-                            Descargar Plantilla
-                        </a>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-between pt-4 border-t border-deep-teal-400">
+                        <div class="flex flex-col sm:flex-row gap-2">
+                            <a href="{{ route('admin.carga-masiva.usuarios.plantilla', ['formato' => 'csv']) }}"
+                               class="px-4 py-2 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition shadow-md flex items-center justify-center gap-2 text-center text-sm">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                                Plantilla CSV
+                            </a>
+                            
+                            <a href="{{ route('admin.carga-masiva.usuarios.plantilla', ['formato' => 'excel']) }}"
+                               class="px-4 py-2 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition shadow-md flex items-center justify-center gap-2 text-center text-sm">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                                Plantilla Excel
+                            </a>
+                        </div>
                         
                         <button type="submit" 
                                 class="px-6 py-3 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition shadow-md flex items-center justify-center gap-2">
@@ -198,12 +208,13 @@
 
             <!-- INFORMACIÓN DEL FORMATO -->
             <div class="bg-white rounded-xl shadow-lg p-6">
-                <h3 class="text-lg font-semibold text-deep-teal-700 mb-4">📋 Formato del Archivo CSV</h3>
+                <h3 class="text-lg font-semibold text-deep-teal-700 mb-4">📋 Formato del Archivo</h3>
                 
                 <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                     <h4 class="font-semibold text-blue-800 mb-2">💡 Importante sobre el formato</h4>
                     <p class="text-blue-700 text-sm">
-                        El archivo debe usar <strong>punto y coma (;)</strong> como separador de columnas para mejor compatibilidad con Excel.
+                        <strong>Para CSV:</strong> Use coma (,) como separador de columnas.<br>
+                        <strong>Para Excel:</strong> Cada columna debe estar en su propia casilla. Descargue la plantilla Excel para el formato correcto.
                     </p>
                 </div>
                 
@@ -248,6 +259,18 @@
                                 <td class="py-3 px-4 text-gray-600">Opcional</td>
                                 <td class="py-3 px-4 text-gray-600 font-mono text-xs">78111662</td>
                             </tr>
+                            <tr>
+                                <td class="py-3 px-4 text-gray-700 font-medium">carrera</td>
+                                <td class="py-3 px-4 text-gray-600">Carrera del docente</td>
+                                <td class="py-3 px-4 text-gray-600">Opcional</td>
+                                <td class="py-3 px-4 text-gray-600 font-mono text-xs">Ingeniería en Sistemas</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 text-gray-700 font-medium">sueldo</td>
+                                <td class="py-3 px-4 text-gray-600">Sueldo del docente</td>
+                                <td class="py-3 px-4 text-gray-600">Opcional</td>
+                                <td class="py-3 px-4 text-gray-600 font-mono text-xs">8000</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -256,10 +279,10 @@
                 <div class="mt-6">
                     <h4 class="font-semibold text-deep-teal-700 mb-3">📝 Ejemplo del formato correcto:</h4>
                     <div class="bg-gray-800 text-green-400 p-4 rounded-lg font-mono text-sm overflow-x-auto">
-                        <div>email;name;rol;codigo_docente;telefono</div>
-                        <div>docente1@ficct.edu.bo;Juan Pérez;docente;DOC001;78111662</div>
-                        <div>coordinador1@ficct.edu.bo;María López;coordinador;;78111663</div>
-                        <div>admin@ficct.edu.bo;Admin Sistema;admin;;78111664</div>
+                        <div>email,name,rol,codigo_docente,telefono,carrera,sueldo</div>
+                        <div>docente1@ficct.edu.bo,Juan Pérez,docente,DOC001,78111662,Ingeniería en Sistemas,8000</div>
+                        <div>coordinador1@ficct.edu.bo,María López,coordinador,,78111663,,</div>
+                        <div>admin@ficct.edu.bo,Admin Sistema,admin,,78111664,,</div>
                     </div>
                 </div>
 
@@ -355,15 +378,15 @@
                 
                 if (!archivo) {
                     e.preventDefault();
-                    alert('Por favor seleccione un archivo CSV');
+                    alert('Por favor seleccione un archivo');
                     return;
                 }
                 
                 // Validar extensión
                 const extension = archivo.name.split('.').pop().toLowerCase();
-                if (!['csv', 'txt'].includes(extension)) {
+                if (!['csv', 'txt', 'xlsx', 'xls'].includes(extension)) {
                     e.preventDefault();
-                    alert('Por favor seleccione un archivo CSV o TXT válido');
+                    alert('Por favor seleccione un archivo Excel o CSV válido');
                     return;
                 }
             });

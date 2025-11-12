@@ -54,14 +54,6 @@ class VisualizacionController extends Controller
         $materiaId = $request->materia_id;
         $grupoId = $request->grupo_id;
 
-        // DEBUG: Mostrar parámetros recibidos
-        \Log::info('Filtros recibidos:', [
-            'codigo_docente' => $codigoDocente,
-            'docente_id' => $docenteId,
-            'materia_id' => $materiaId, 
-            'grupo_id' => $grupoId,
-            'fecha_inicio' => $fechaInicio
-        ]);
 
         // REGISTRO EN BITÁCORA: Filtros aplicados (solo si hay filtros)
         if ($codigoDocente || $docenteId || $materiaId || $grupoId) {
@@ -227,21 +219,11 @@ class VisualizacionController extends Controller
             ->orderBy('horario.dia')
             ->orderBy('horario.hora_inicio');
 
-        // DEBUG: Log de los filtros aplicados
-        \Log::info('Aplicando filtros:', [
-            'codigo_docente' => $codigoDocente,
-            'docente_id' => $docenteId,
-            'materia_id' => $materiaId,
-            'grupo_id' => $grupoId
-        ]);
-
         // Aplicar filtros - CORREGIDO
         if ($codigoDocente) {
             $query->whereHas('docente', function($q) use ($codigoDocente) {
                 $q->where('codigo', 'LIKE', '%' . $codigoDocente . '%');
             });
-            
-            \Log::info('Filtro por código docente aplicado: ' . $codigoDocente);
         }
 
         if ($docenteId) {
@@ -263,10 +245,7 @@ class VisualizacionController extends Controller
         $resultados = $query->get();
         
         // DEBUG: Log de resultados
-        \Log::info('Resultados obtenidos:', [
-            'total' => $resultados->count(),
-            'filtros' => compact('codigoDocente', 'docenteId', 'materiaId', 'grupoId')
-        ]);
+        
 
         return $resultados;
     }
