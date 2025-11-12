@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Docente;
 use App\Models\GestionAcademica;
 use App\Models\Carrera;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
@@ -24,75 +25,74 @@ class CargaMasivaUsuariosController extends Controller
     }
 
     public function preview(Request $request)
-    {
-        try {
-            // Validar archivo (ahora acepta Excel y CSV)
-            $request->validate([
-                'archivo_usuarios' => 'required|file|mimes:csv,txt,xlsx,xls|max:1024',
-                'id_gestion' => 'required|exists:gestion_academica,id'
-            ]);
+{
+    try {
+        // Validar archivo
+        $request->validate([
+            'archivo_usuarios' => 'required|file|mimes:csv,txt,xlsx,xls|max:1024',
+            'id_gestion' => 'required|exists:gestion_academica,id'
+        ]);
 
-            $archivo = $request->file('archivo_usuarios');
-            $extension = $archivo->getClientOriginalExtension();
-            $datos = [];
-            $errores = [];
+        $archivo = $request->file('archivo_usuarios');
+        $extension = $archivo->getClientOriginalExtension();
+        $datos = [];
+        $errores = [];
 
-            // Procesar según el tipo de archivo
-            if (in_array($extension, ['xlsx', 'xls'])) {
-                // Procesar archivo Excel
-                $datos = $this->procesarExcel($archivo);
-            } else {
-                // Procesar archivo CSV
-                $datos = $this->procesarCSV($archivo);
-            }
-
-            // Validar y procesar datos
-            foreach ($datos as $index => $fila) {
-                // Asegurar que todos los campos existan
-                $filaCompleta = array_merge([
-                    'email' => '',
-                    'name' => '',
-                    'rol' => '',
-                    'codigo_docente' => '',
-                    'telefono' => '',
-                    'carrera' => '',
-                    'sueldo' => ''
-                ], $fila);
-
-                // Generar password automáticamente
-                $filaCompleta['password'] = $this->generarPassword($filaCompleta);
-                
-                // Validar fila
-                $errorFila = $this->validarFila($filaCompleta, $index + 1);
-                if ($errorFila) {
-                    $errores[] = $errorFila;
-                } else {
-                    $datos[$index] = $filaCompleta;
-                }
-            }
-
-            // Filtrar datos válidos
-            $datos = array_filter($datos, function($fila) use ($errores) {
-                return !in_array($fila, $errores);
-            });
-
-            if (empty($datos)) {
-                return redirect()->back()->with('error', 'No se encontraron datos válidos en el archivo.');
-            }
-
-            return view('cargaMasiva.preview', [
-                'datos' => $datos,
-                'errores' => $errores,
-                'totalRegistros' => count($datos),
-                'totalErrores' => count($errores),
-                'id_gestion' => $request->id_gestion,
-                'nombreArchivo' => $archivo->getClientOriginalName()
-            ]);
-
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Error al procesar el archivo: ' . $e->getMessage());
+        // Procesar según el tipo de archivo
+        if (in_array($extension, ['xlsx', 'xls'])) {
+            // Procesar archivo Excel
+            $datos = $this->procesarExcel($archivo);
+        } else {
+            // Procesar archivo CSV
+            $datos = $this->procesarCSV($archivo);
         }
+
+        // Validar y procesar datos - CORREGIDO: Asegurar que password se genere
+        $datosValidos = [];
+        foreach ($datos as $index => $fila) {
+            // Asegurar que todos los campos existan
+            $filaCompleta = array_merge([
+                'email' => '',
+                'name' => '',
+                'rol' => '',
+                'codigo_docente' => '',
+                'telefono' => '',
+                'carrera' => '',
+                'sueldo' => ''
+            ], $fila);
+
+            // Generar password automáticamente - AQUÍ ESTÁ LA CORRECCIÓN
+            $filaCompleta['password'] = $this->generarPassword($filaCompleta);
+            
+            // Validar fila
+            $errorFila = $this->validarFila($filaCompleta, $index + 1);
+            if ($errorFila) {
+                $errores[] = $errorFila;
+            } else {
+                $datosValidos[] = $filaCompleta; // Usar $datosValidos en lugar de modificar $datos
+            }
+        }
+
+        // Reemplazar datos originales con datos válidos
+        $datos = $datosValidos;
+
+        if (empty($datos)) {
+            return redirect()->back()->with('error', 'No se encontraron datos válidos en el archivo.');
+        }
+
+        return view('cargaMasiva.preview', [
+            'datos' => $datos,
+            'errores' => $errores,
+            'totalRegistros' => count($datos),
+            'totalErrores' => count($errores),
+            'id_gestion' => $request->id_gestion,
+            'nombreArchivo' => $archivo->getClientOriginalName()
+        ]);
+
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'Error al procesar el archivo: ' . $e->getMessage());
     }
+}
 
     public function procesar(Request $request)
     {
