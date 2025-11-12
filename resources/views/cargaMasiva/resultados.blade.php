@@ -98,12 +98,13 @@
                     </div>
                     <div class="bg-blue-600 rounded-lg p-4 border border-blue-400">
                         <div class="text-2xl font-bold text-white">
-                            {{ number_format(($resultados['exitosos'] / $totalProcesados) * 100, 1) }}%
+                            {{ $totalProcesados > 0 ? number_format(($resultados['exitosos'] / $totalProcesados) * 100, 1) : 0 }}%
                         </div>
                         <div class="text-blue-100 text-sm">Tasa de Éxito</div>
                     </div>
                 </div>
 
+                <!-- BARRA DE PROGRESO -->
                 <!-- BARRA DE PROGRESO -->
                 <div class="mt-6">
                     <div class="flex justify-between text-cream-300 text-sm mb-2">
@@ -112,7 +113,7 @@
                     </div>
                     <div class="w-full bg-deep-teal-600 rounded-full h-3">
                         <div class="bg-green-500 h-3 rounded-full transition-all duration-500" 
-                             style="width: {{ ($resultados['exitosos'] / $totalProcesados) * 100 }}%"></div>
+                            style="width: {{ $totalProcesados > 0 ? ($resultados['exitosos'] / $totalProcesados) * 100 : 0 }}%"></div>
                     </div>
                 </div>
             </div>

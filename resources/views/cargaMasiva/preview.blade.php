@@ -216,43 +216,44 @@
             </div>
 
             <!-- BOTONES DE ACCIÓN -->
-            <div class="flex flex-col sm:flex-row gap-4 justify-between items-center">
-                <a href="{{ route('admin.carga-masiva.usuarios.index') }}"
-                class="px-6 py-3 bg-gray-500 text-white rounded-lg font-semibold hover:bg-gray-600 transition shadow-md flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                    Cancelar
-                </a>
+            <!-- BOTONES DE ACCIÓN -->
+<div class="flex flex-col sm:flex-row gap-4 justify-between items-center">
+    <a href="{{ route('admin.carga-masiva.usuarios.index') }}"
+    class="px-6 py-3 bg-gray-500 text-white rounded-lg font-semibold hover:bg-gray-600 transition shadow-md flex items-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+        Cancelar
+    </a>
 
-                @if(count($datos) > 0)
-                <form action="{{ route('admin.carga-masiva.usuarios.procesar') }}" method="POST" class="flex gap-4" id="importForm">
-                    @csrf
-                    <input type="hidden" name="id_gestion" value="{{ $id_gestion }}">
-                    
-                    <!-- Pasar los datos como array de JSON -->
-                    @foreach($datos as $index => $usuario)
-                        <input type="hidden" name="datos[]" value="{{ htmlspecialchars(json_encode($usuario)) }}">
-                    @endforeach
-                    
-                    <button type="submit"
-                            class="px-6 py-3 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition shadow-md flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        Confirmar Importación ({{ count($datos) }} registros)
-                    </button>
-                </form>
-                @else
-                <button disabled
-                        class="px-6 py-3 bg-gray-400 text-gray-200 rounded-lg font-semibold cursor-not-allowed flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                    </svg>
-                    Sin registros válidos
-                </button>
-                @endif
-            </div>
+    @if(count($datos) > 0)
+    <form action="{{ route('admin.carga-masiva.usuarios.procesar') }}" method="POST" class="flex gap-4" id="importForm">
+        @csrf
+        <input type="hidden" name="id_gestion" value="{{ $id_gestion }}">
+        
+        <!-- Pasar los datos como array de JSON - CORREGIDO -->
+        @foreach($datos as $index => $usuario)
+            <input type="hidden" name="datos[{{ $index }}]" value="{{ json_encode($usuario) }}">
+        @endforeach
+        
+        <button type="submit"
+                class="px-6 py-3 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition shadow-md flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            Confirmar Importación ({{ count($datos) }} registros)
+        </button>
+    </form>
+    @else
+    <button disabled
+            class="px-6 py-3 bg-gray-400 text-gray-200 rounded-lg font-semibold cursor-not-allowed flex items-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+        </svg>
+        Sin registros válidos
+    </button>
+    @endif
+</div>
 
         </section>
     </main>

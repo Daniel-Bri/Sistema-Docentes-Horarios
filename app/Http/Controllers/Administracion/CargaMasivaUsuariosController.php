@@ -94,103 +94,135 @@ class CargaMasivaUsuariosController extends Controller
     }
 }
 
-    public function procesar(Request $request)
-    {
-        try {
-            $request->validate([
-                'datos' => 'required|array',
-                'id_gestion' => 'required|exists:gestion_academica,id'
-            ]);
+   public function procesar(Request $request)
+{
+    try {
 
-            // Decodificar los datos JSON
-            $datos = [];
-            foreach ($request->datos as $jsonData) {
+        $request->validate([
+            'datos' => 'required|array',
+            'id_gestion' => 'required|exists:gestion_academica,id'
+        ]);
+
+        // Decodificar los datos JSON - CORREGIDO
+        $datos = [];
+        foreach ($request->datos as $index => $jsonData) {
+            
+            if (is_array($jsonData)) {
+                // Si ya es un array, usarlo directamente
+                $datos[] = $jsonData;
+            } else {
+                // Si es JSON, decodificarlo
                 $usuarioData = json_decode($jsonData, true);
                 if (json_last_error() === JSON_ERROR_NONE) {
                     $datos[] = $usuarioData;
-                }
+                } 
             }
+        }
 
-            $resultados = [
-                'exitosos' => 0,
-                'errores' => [],
-                'usuarios_creados' => []
-            ];
 
-            DB::beginTransaction();
+        // Verificar que hay datos para procesar
+        if (empty($datos)) {
+            return redirect()->route('admin.carga-masiva.usuarios.index')
+                ->with('error', 'No hay datos válidos para procesar.');
+        }
 
-            foreach ($datos as $index => $usuarioData) {
-                try {
-                    // Validar nuevamente antes de crear
-                    $error = $this->validarFila($usuarioData, $index + 1);
-                    if ($error) {
-                        $resultados['errores'][] = "Fila " . ($index + 1) . ": " . $error;
+        $resultados = [
+            'exitosos' => 0,
+            'errores' => [],
+            'usuarios_creados' => []
+        ];
+
+        DB::beginTransaction();
+
+        foreach ($datos as $index => $usuarioData) {
+            try {
+                // Validar nuevamente antes de crear
+                $error = $this->validarFila($usuarioData, $index + 1);
+                if ($error) {
+                    $resultados['errores'][] = "Fila " . ($index + 1) . ": " . $error;
+                    continue;
+                }
+
+                // Verificar si el usuario ya existe
+                if (User::where('email', $usuarioData['email'])->exists()) {
+                    $resultados['errores'][] = "Fila " . ($index + 1) . ": El email ya existe en el sistema: " . $usuarioData['email'];
+                    continue;
+                }
+
+                // Crear usuario
+                $usuario = User::create([
+                    'name' => $usuarioData['name'],
+                    'email' => $usuarioData['email'],
+                    'password' => Hash::make($usuarioData['password']),
+                    'email_verified_at' => now(),
+                ]);
+
+                // Asignar rol
+                $usuario->assignRole($usuarioData['rol']);
+
+                // Si es docente, crear registro en tabla docente
+                if ($usuarioData['rol'] === 'docente' && !empty($usuarioData['codigo_docente'])) {
+                    // Verificar si el código docente ya existe
+                    if (Docente::where('codigo', $usuarioData['codigo_docente'])->exists()) {
+                        $resultados['errores'][] = "Fila " . ($index + 1) . ": El código docente ya existe: " . $usuarioData['codigo_docente'];
+                        // Eliminar el usuario creado
+                        $usuario->delete();
                         continue;
                     }
 
-                    // Crear usuario
-                    $usuario = User::create([
-                        'name' => $usuarioData['name'],
-                        'email' => $usuarioData['email'],
-                        'password' => Hash::make($usuarioData['password']),
-                        'email_verified_at' => now(),
+                    Docente::create([
+                        'codigo' => $usuarioData['codigo_docente'],
+                        'fecha_contrato' => now(),
+                        'sueldo' => !empty($usuarioData['sueldo']) ? floatval($usuarioData['sueldo']) : 0,
+                        'telefono' => $usuarioData['telefono'] ?? null,
+                        'id_users' => $usuario->id
                     ]);
 
-                    // Asignar rol
-                    $usuario->assignRole($usuarioData['rol']);
-
-                    // Si es docente, crear registro en tabla docente
-                    if ($usuarioData['rol'] === 'docente' && !empty($usuarioData['codigo_docente'])) {
-                        Docente::create([
-                            'codigo' => $usuarioData['codigo_docente'],
-                            'fecha_contrato' => now(),
-                            'sueldo' => !empty($usuarioData['sueldo']) ? floatval($usuarioData['sueldo']) : 0,
-                            'telefono' => $usuarioData['telefono'] ?? null,
-                            'id_users' => $usuario->id
-                        ]);
-
-                        // Asignar carrera si se especificó
-                        if (!empty($usuarioData['carrera'])) {
-                            $carrera = Carrera::where('nombre', 'like', '%' . $usuarioData['carrera'] . '%')->first();
-                            if ($carrera) {
-                                DB::table('docente_carrera')->insert([
-                                    'codigo_docente' => $usuarioData['codigo_docente'],
-                                    'id_carrera' => $carrera->id
-                                ]);
-                            }
+                    // Asignar carrera si se especificó
+                    if (!empty($usuarioData['carrera'])) {
+                        $carrera = Carrera::where('nombre', 'like', '%' . $usuarioData['carrera'] . '%')->first();
+                        if ($carrera) {
+                            DB::table('docente_carrera')->insert([
+                                'codigo_docente' => $usuarioData['codigo_docente'],
+                                'id_carrera' => $carrera->id
+                            ]);
                         }
                     }
-
-                    $resultados['exitosos']++;
-                    $resultados['usuarios_creados'][] = [
-                        'email' => $usuario->email,
-                        'name' => $usuario->name,
-                        'rol' => $usuarioData['rol'],
-                        'codigo_docente' => $usuarioData['codigo_docente'] ?? 'N/A',
-                        'carrera' => $usuarioData['carrera'] ?? 'N/A',
-                        'sueldo' => $usuarioData['sueldo'] ?? 'N/A',
-                        'password_generada' => $usuarioData['password']
-                    ];
-
-                } catch (\Exception $e) {
-                    $resultados['errores'][] = "Fila " . ($index + 1) . ": " . $e->getMessage();
                 }
+
+                $resultados['exitosos']++;
+                $resultados['usuarios_creados'][] = [
+                    'email' => $usuario->email,
+                    'name' => $usuario->name,
+                    'rol' => $usuarioData['rol'],
+                    'codigo_docente' => $usuarioData['codigo_docente'] ?? 'N/A',
+                    'carrera' => $usuarioData['carrera'] ?? 'N/A',
+                    'sueldo' => $usuarioData['sueldo'] ?? 'N/A',
+                    'password_generada' => $usuarioData['password']
+                ];
+
+
+            } catch (\Exception $e) {
+                $resultados['errores'][] = "Fila " . ($index + 1) . ": " . $e->getMessage();
             }
-
-            DB::commit();
-
-            return view('cargaMasiva.resultados', [
-                'resultados' => $resultados,
-                'totalProcesados' => count($datos),
-                'id_gestion' => $request->id_gestion
-            ]);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return redirect()->route('admin.carga-masiva.usuarios.index')
-                ->with('error', 'Error en el proceso de importación: ' . $e->getMessage());
         }
+
+        DB::commit();
+
+
+
+        return view('cargaMasiva.resultados', [
+            'resultados' => $resultados,
+            'totalProcesados' => count($datos),
+            'id_gestion' => $request->id_gestion
+        ]);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return redirect()->route('admin.carga-masiva.usuarios.index')
+            ->with('error', 'Error en el proceso de importación: ' . $e->getMessage());
     }
+}
 
     public function descargarPlantilla($formato = 'csv')
     {
